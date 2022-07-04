@@ -1,0 +1,39 @@
+{
+    "waves": [
+        {
+            "activator": {
+                "item": "minecraft:nether_star",
+                "count": 2
+            },
+            "loot": "proletaria:boss_waves/1",
+            "bossbar": "1/5 The Chilling Zone",
+            "bosses": [
+                {
+                    "id": "frostmaw",
+                    "entity": "mowziesmobs:frostmaw",
+                    "name": "Frostie",
+                    "health": 250,
+                    "effects": []
+                },
+                {
+                    "id": "witch1",
+                    "entity": "minecraft:witch"
+                },
+                {
+                    "id": "witch2",
+                    "entity": "minecraft:witch"
+                }
+            ],
+            "minions": [
+                {
+                    "leader": "frostmaw",
+                    "entity": "minecraft:husk",
+                    "count": {
+                        "min": "3",
+                        "max": "5"
+                    }
+                }
+            ]
+        }
+    ]
+}
