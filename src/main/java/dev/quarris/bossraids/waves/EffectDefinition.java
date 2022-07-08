@@ -1,10 +1,10 @@
-package dev.quarris.bosswaves.waves;
+package dev.quarris.bossraids.waves;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.potion.Effect;
 
 public class EffectDefinition {
 
-    private ResourceLocation effect;
+    private Effect effect;
     private int amplifier;
 
     @Override

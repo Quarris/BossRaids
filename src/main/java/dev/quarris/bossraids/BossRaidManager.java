@@ -1,9 +1,9 @@
-package dev.quarris.bosswaves;
+package dev.quarris.bossraids;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import dev.quarris.bosswaves.waves.BossWaveDefinition;
+import dev.quarris.bossraids.waves.BossRaidDefinition;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
@@ -12,21 +12,21 @@ import net.minecraft.util.ResourceLocation;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BossWaveManager extends JsonReloadListener {
+public class BossRaidManager extends JsonReloadListener {
 
-    public static BossWaveManager INST;
+    public static BossRaidManager INST;
     private Gson gson;
 
-    private Map<ResourceLocation, BossWaveDefinition> bossWaves = new HashMap();
+    private Map<ResourceLocation, BossRaidDefinition> bossraids = new HashMap();
 
-    public BossWaveManager(Gson gson) {
+    public BossRaidManager(Gson gson) {
         super(gson, "boss_waves");
         this.gson = gson;
         INST = this;
     }
 
-    public BossWaveDefinition getBossWave(ResourceLocation id) {
-        return this.bossWaves.get(id);
+    public BossRaidDefinition getBossWave(ResourceLocation id) {
+        return this.bossraids.get(id);
     }
 
     @Override
@@ -37,15 +37,16 @@ public class BossWaveManager extends JsonReloadListener {
                 return;
             }
             try {
-                BossWaveDefinition bossWave = this.gson.fromJson(baseJson, BossWaveDefinition.class);
-                if (bossWave.getWaves().isEmpty()) {
+                BossRaidDefinition bossWave = this.gson.fromJson(baseJson, BossRaidDefinition.class);
+                if (bossWave.isEmpty()) {
                     ModRef.LOGGER.error("Boss Wave Definition '{}' cannot have an empty list of waves.", name);
                     return;
                 }
-                this.bossWaves.put(name, bossWave);
+                this.bossraids.put(name, bossWave);
             } catch (JsonParseException e) {
                 ModRef.LOGGER.error("Could not parse BossWave " + name, e);
             }
         });
+        System.out.println(this.bossraids);
     }
 }

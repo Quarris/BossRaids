@@ -1,11 +1,12 @@
-package dev.quarris.bosswaves.waves;
+package dev.quarris.bossraids.waves;
 
+import net.minecraft.entity.EntityType;
 import net.minecraft.util.RangedInteger;
 import net.minecraft.util.ResourceLocation;
 
 public class MinionEntityDefinition {
     private String leader;
-    private ResourceLocation entity;
+    private EntityType<?> entity;
     private RangedInteger count;
 
     @Override

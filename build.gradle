@@ -13,8 +13,8 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 version = '1.0'
-group = 'dev.quarris.bosswaves' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'BossWaves'
+group = 'dev.quarris.bossraids' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'BossRaids'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
 
@@ -73,7 +73,7 @@ dependencies {
 jar {
     manifest {
         attributes([
-            "Specification-Title": "Boss Waves",
+            "Specification-Title": "BossRaids",
             "Specification-Vendor": "Quarris",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,

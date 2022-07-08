@@ -1,6 +1,6 @@
-package dev.quarris.bosswaves.content;
+package dev.quarris.bossraids.content;
 
-import dev.quarris.bosswaves.ModRef;
+import dev.quarris.bossraids.ModRef;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -19,7 +19,7 @@ public class ModContent {
 
     public static RegistryObject<Block> KEYSTONE_BLOCK = BLOCKS.register("keystone", KeystoneBlock::new);
 
-    public static RegistryObject<TileEntityType<?>> KEYSTONE_TILE = TILE_ENTITIES.register("keystone", () -> TileEntityType.Builder.of(KeystoneTileEntity::new, KEYSTONE_BLOCK.get()).build(null));
+    public static RegistryObject<TileEntityType<KeystoneTileEntity>> KEYSTONE_TILE = TILE_ENTITIES.register("keystone", () -> TileEntityType.Builder.of(KeystoneTileEntity::new, KEYSTONE_BLOCK.get()).build(null));
 
     public static RegistryObject<Item> KEYSTONE_ITEM = ITEMS.register(KEYSTONE_BLOCK.getId().getPath(), () -> new BlockItem(KEYSTONE_BLOCK.get(), new Item.Properties().tab(ItemGroup.TAB_MISC)));
 
