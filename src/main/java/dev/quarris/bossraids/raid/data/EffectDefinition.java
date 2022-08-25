@@ -1,4 +1,4 @@
-package dev.quarris.bossraids.waves;
+package dev.quarris.bossraids.raid.data;
 
 import net.minecraft.potion.Effect;
 

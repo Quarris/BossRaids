@@ -1,5 +1,5 @@
 {
-    "loot": "minecraft:chests/buried_treasure.json",
+    "loot": "minecraft:chests/buried_treasure",
     "waves": [
         {
             "requirements": [

@@ -1,8 +1,7 @@
-package dev.quarris.bossraids.waves;
+package dev.quarris.bossraids.raid.data;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.RangedInteger;
-import net.minecraft.util.ResourceLocation;
 
 public class MinionEntityDefinition {
     private String leader;

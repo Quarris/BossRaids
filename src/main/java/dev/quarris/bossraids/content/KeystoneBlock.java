@@ -1,5 +1,6 @@
 package dev.quarris.bossraids.content;
 
+import dev.quarris.bossraids.raid.RaidState;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -23,7 +24,7 @@ import javax.annotation.Nullable;
 
 public class KeystoneBlock extends Block {
 
-    public static final EnumProperty<KeystoneTileEntity.RaidState> RAID_STATE_PROP = EnumProperty.create("raid_state", KeystoneTileEntity.RaidState.class);
+    public static final EnumProperty<RaidState> RAID_STATE_PROP = EnumProperty.create("raid_state", RaidState.class);
     private static final VoxelShape SHAPE = makeShape();
     public KeystoneBlock() {
         super(AbstractBlock.Properties.of(Material.STONE).noDrops());

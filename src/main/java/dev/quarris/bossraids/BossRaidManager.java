@@ -3,7 +3,7 @@ package dev.quarris.bossraids;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import dev.quarris.bossraids.waves.BossRaidDefinition;
+import dev.quarris.bossraids.raid.data.BossRaidDefinition;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
