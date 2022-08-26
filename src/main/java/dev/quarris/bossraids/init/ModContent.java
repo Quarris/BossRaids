@@ -1,6 +1,8 @@
-package dev.quarris.bossraids.content;
+package dev.quarris.bossraids.init;
 
 import dev.quarris.bossraids.ModRef;
+import dev.quarris.bossraids.content.KeystoneBlock;
+import dev.quarris.bossraids.content.KeystoneTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;

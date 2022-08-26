@@ -1,5 +1,6 @@
 package dev.quarris.bossraids.content;
 
+import dev.quarris.bossraids.init.ModContent;
 import dev.quarris.bossraids.raid.BossRaid;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -13,17 +14,33 @@ import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 
 public class KeystoneTileEntity extends TileEntity implements ITickableTileEntity {
-    private final BossRaid raid;
+
+
+    private BossRaid raid;
 
     public KeystoneTileEntity() {
         super(ModContent.KEYSTONE_TILE.get());
-        this.raid = new BossRaid();
     }
 
     public KeystoneAction activateWithItem(PlayerEntity player, ItemStack item) {
+        if (player.isCreative() && item.getItem() == Items.NAME_TAG) {
+            if (item.hasCustomHoverName()) {
+                try {
+                    ResourceLocation id = new ResourceLocation(item.getHoverName().getString());
+                    this.setRaid(id);
+                    return KeystoneAction.RENAME;
+                } catch (ResourceLocationException e) {
+                    // Name is not a valid resource name, do not try to change the boss raid id
+                }
+            }
+        }
+
+        if (this.raid == null) {
+            return KeystoneAction.INVALID;
+        }
+
         if (item.isEmpty()) {
             if (!player.level.isClientSide()) {
                 player.displayClientMessage(new StringTextComponent(String.valueOf(this.raid.getId())), false);
@@ -37,17 +54,7 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
             return KeystoneAction.IN_PROGRESS;
         }
 
-        if (player.isCreative() && item.getItem() == Items.NAME_TAG) {
-            if (item.hasCustomHoverName()) {
-                try {
-                    ResourceLocation id = new ResourceLocation(item.getHoverName().getString());
-                    this.raid.setId(id);
-                    return KeystoneAction.RENAME;
-                } catch (ResourceLocationException e) {
-                    // Name is not a valid resource name, do not try to change the boss wave id
-                }
-            }
-        }
+
 
         if (this.raid.getState().inactive()) {
             return KeystoneAction.INVALID;
@@ -65,19 +72,25 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
 
     @Override
     public void tick() {
-        this.raid.update();
+        if (this.raid != null) {
+            this.raid.update();
+        }
     }
 
     @Override
     public void setRemoved() {
         super.setRemoved();
-        this.raid.onRemoved();
+        if (this.raid != null) {
+            this.raid.onRemoved();
+        }
     }
 
     @Override
     public void setLevelAndPosition(World level, BlockPos pos) {
         super.setLevelAndPosition(level, pos);
-        this.raid.setLevelAndPos(level, pos);
+        if (this.raid != null) {
+            this.raid.setLevelAndPos(level, pos);
+        }
     }
 
     @Override
@@ -93,7 +106,15 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
     public void load(BlockState state, CompoundNBT nbt) {
         super.load(state, nbt);
         if (nbt.contains("Raid")) {
-            this.raid.deserialize(nbt.getCompound("Raid"));
+            this.raid = new BossRaid(this, nbt.getCompound("Raid"));
+        }
+    }
+
+    public void setRaid(ResourceLocation id) {
+        if (this.raid != null) {
+            this.raid.setId(id);
+        } else {
+            this.raid = new BossRaid(this, id);
         }
     }
 

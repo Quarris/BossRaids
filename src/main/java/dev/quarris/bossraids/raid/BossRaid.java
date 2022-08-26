@@ -60,7 +60,15 @@ public class BossRaid {
     private Map<String, LivingEntity> bosses = new HashMap<>();
     private Multimap<String, Entity> minions = HashMultimap.create();
 
-    public BossRaid() {}
+    public BossRaid(KeystoneTileEntity tile, ResourceLocation id) {
+        this.setLevelAndPos(tile.getLevel(), tile.getBlockPos());
+        this.setId(id);
+    }
+
+    public BossRaid(KeystoneTileEntity tile, CompoundNBT nbt) {
+        this.setLevelAndPos(tile.getLevel(), tile.getBlockPos());
+        this.deserialize(nbt);
+    }
 
     public boolean tryInsertRequirement(PlayerEntity player, ItemStack item) {
         Iterator<ItemRequirement.Instance> ite = this.requirements.iterator();
