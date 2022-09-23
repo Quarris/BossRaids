@@ -6,6 +6,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.quarris.bossraids.ModRef;
+import dev.quarris.bossraids.raid.offsets.IOffset;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -25,54 +26,55 @@ public class BossRaidUtils {
     public static Gson getBossRaidGson() {
         if (gson == null) {
             gson = new GsonBuilder()
-                    .registerTypeAdapter(ResourceLocation.class, (JsonDeserializer) (json, typeOfT, context) -> new ResourceLocation(json.getAsString()))
-                    .registerTypeAdapter(RangedInteger.class, (JsonDeserializer) (json, typeOfT, context) -> {
-                        if (json.isJsonObject()) {
-                            JsonObject jo = json.getAsJsonObject();
-                            return RangedInteger.of(jo.get("min").getAsInt(), jo.get("max").getAsInt());
-                        }
-                        return RangedInteger.of(json.getAsInt(), json.getAsInt());
-                    })
-                    .registerTypeAdapter(CompoundNBT.class, (JsonDeserializer) (json, typeOfT, context) -> {
-                        try {
-                            return JsonToNBT.parseTag(json.getAsString());
-                        } catch (CommandSyntaxException e) {
-                            ModRef.LOGGER.warn("Invalid Compound tag found {}", json);
-                            return null;
-                        }
-                    })
-                    .registerTypeAdapter(ItemStack.class, (JsonDeserializer) (json, typeOfT, context) -> {
-                        if (json.isJsonPrimitive()) {
-                            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(json.getAsString()));
-                            return new ItemStack(item);
-                        }
-
+                .registerTypeAdapter(ResourceLocation.class, (JsonDeserializer) (json, typeOfT, context) -> new ResourceLocation(json.getAsString()))
+                .registerTypeAdapter(RangedInteger.class, (JsonDeserializer) (json, typeOfT, context) -> {
+                    if (json.isJsonObject()) {
                         JsonObject jo = json.getAsJsonObject();
-                        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(jo.get("item").getAsString()));
-                        int count = JSONUtils.getAsInt(jo, "count", 1);
-                        CompoundNBT nbt = JSONUtils.getAsObject(jo, "nbt", null, context, CompoundNBT.class);
-                        return new ItemStack(item, count, nbt);
-                    })
-                    .registerTypeAdapter(EntityType.class, (JsonDeserializer) (json, typeOfT, context) -> {
-                        ResourceLocation name = context.deserialize(json, ResourceLocation.class);
-                        if (!ForgeRegistries.ENTITIES.containsKey(name)) {
-                            ModRef.LOGGER.error("Entity with id '{}' not found", name);
-                            return null;
-                        }
+                        return RangedInteger.of(jo.get("min").getAsInt(), jo.get("max").getAsInt());
+                    }
+                    return RangedInteger.of(json.getAsInt(), json.getAsInt());
+                })
+                .registerTypeAdapter(CompoundNBT.class, (JsonDeserializer) (json, typeOfT, context) -> {
+                    try {
+                        return JsonToNBT.parseTag(json.getAsString());
+                    } catch (CommandSyntaxException e) {
+                        ModRef.LOGGER.warn("Invalid Compound tag found {}", json);
+                        return null;
+                    }
+                })
+                .registerTypeAdapter(ItemStack.class, (JsonDeserializer) (json, typeOfT, context) -> {
+                    if (json.isJsonPrimitive()) {
+                        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(json.getAsString()));
+                        return new ItemStack(item);
+                    }
 
-                        return ForgeRegistries.ENTITIES.getValue(name);
-                    })
-                    .registerTypeAdapter(Effect.class, (JsonDeserializer) (json, typeOfT, context) -> {
-                        ResourceLocation name = context.deserialize(json, ResourceLocation.class);
-                        if (!ForgeRegistries.POTIONS.containsKey(name)) {
-                            ModRef.LOGGER.error("Entity with id '{}' not found", name);
-                            return null;
-                        }
+                    JsonObject jo = json.getAsJsonObject();
+                    Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(jo.get("item").getAsString()));
+                    int count = JSONUtils.getAsInt(jo, "count", 1);
+                    CompoundNBT nbt = JSONUtils.getAsObject(jo, "nbt", null, context, CompoundNBT.class);
+                    return new ItemStack(item, count, nbt);
+                })
+                .registerTypeAdapter(EntityType.class, (JsonDeserializer) (json, typeOfT, context) -> {
+                    ResourceLocation name = context.deserialize(json, ResourceLocation.class);
+                    if (!ForgeRegistries.ENTITIES.containsKey(name)) {
+                        ModRef.LOGGER.error("Entity with id '{}' not found", name);
+                        return null;
+                    }
 
-                        return ForgeRegistries.POTIONS.getValue(name);
-                    })
-                    .registerTypeAdapter(Ingredient.class, (JsonDeserializer) (json, typeOfT, context) -> Ingredient.fromJson(json))
-                    .create();
+                    return ForgeRegistries.ENTITIES.getValue(name);
+                })
+                .registerTypeAdapter(Effect.class, (JsonDeserializer) (json, typeOfT, context) -> {
+                    ResourceLocation name = context.deserialize(json, ResourceLocation.class);
+                    if (!ForgeRegistries.POTIONS.containsKey(name)) {
+                        ModRef.LOGGER.error("Entity with id '{}' not found", name);
+                        return null;
+                    }
+
+                    return ForgeRegistries.POTIONS.getValue(name);
+                })
+                .registerTypeAdapter(Ingredient.class, (JsonDeserializer) (json, typeOfT, context) -> Ingredient.fromJson(json))
+                .registerTypeAdapter(IOffset.class, (JsonDeserializer) (json, typeOfT, context) -> IOffset.getOffsetFromJson(json.getAsJsonObject()))
+                .create();
         }
 
         return gson;

@@ -1,7 +1,8 @@
 package dev.quarris.bossraids.world.structures;
 
 import com.mojang.serialization.Codec;
-import dev.quarris.bossraids.init.ModStructures;
+import dev.quarris.bossraids.raid.arena.RaidArenaDefinition;
+import dev.quarris.bossraids.raid.arena.RaidArenas;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.Rotation;
@@ -29,12 +30,15 @@ import java.util.Set;
 
 public class RaidArenaStructure extends Structure<NoFeatureConfig> {
 
-    public RaidArenaStructure(Codec<NoFeatureConfig> codec) {
+    private final RaidArenaDefinition arenaDefinition;
+
+    public RaidArenaStructure(RaidArenaDefinition arenaDefinition, Codec<NoFeatureConfig> codec) {
         super(codec);
+        this.arenaDefinition = arenaDefinition;
     }
 
     public Structure.IStartFactory<NoFeatureConfig> getStartFactory() {
-        return RaidArenaStructure.Start::new;
+        return Start::new;
     }
 
     @Override
@@ -58,11 +62,11 @@ public class RaidArenaStructure extends Structure<NoFeatureConfig> {
         Set<BiomeDictionary.Type> types = BiomeDictionary.getTypes(key);
 
         if (types.contains(BiomeDictionary.Type.PLAINS)) {
-            event.getGeneration().addStructureStart(ModStructures.RAID_ARENA.get().configured(IFeatureConfig.NONE));
+            RaidArenas.getArenaStructures().values().forEach(structure -> event.getGeneration().addStructureStart(structure.get().configured(IFeatureConfig.NONE)));
         }
     }
 
-    public static class Start extends StructureStart<NoFeatureConfig> {
+    public class Start extends StructureStart<NoFeatureConfig> {
 
         public Start(Structure<NoFeatureConfig> structure, int chunkX, int chunkZ, MutableBoundingBox aabb, int references, long seed) {
             super(structure, chunkX, chunkZ, aabb, references, seed);
@@ -73,7 +77,7 @@ public class RaidArenaStructure extends Structure<NoFeatureConfig> {
             int centerY = (chunkZ << 4) + 7;
             BlockPos blockpos = new BlockPos(centerX, chunkGenerator.getBaseHeight(centerX, centerY, Heightmap.Type.WORLD_SURFACE_WG), centerY);
             Rotation rotation = Rotation.getRandom(this.random);
-            RaidArenaPieces.addPieces(templates, blockpos, rotation, this.pieces, this.random);
+            this.pieces.add(new RaidArenaPieces.Piece(templates, RaidArenaStructure.this.arenaDefinition.structureId, RaidArenaStructure.this.arenaDefinition.getRaidId(), blockpos, rotation));
             this.calculateBoundingBox();
         }
 

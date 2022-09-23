@@ -3,6 +3,8 @@ package dev.quarris.bossraids.init;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.quarris.bossraids.ModRef;
+import dev.quarris.bossraids.raid.arena.RaidArenaDefinition;
+import dev.quarris.bossraids.raid.arena.RaidArenas;
 import dev.quarris.bossraids.world.structures.RaidArenaPieces;
 import dev.quarris.bossraids.world.structures.RaidArenaStructure;
 import net.minecraft.util.ResourceLocation;
@@ -30,8 +32,7 @@ public class ModStructures {
     public static final DeferredRegister<Structure<?>> STRUCTURES =
         DeferredRegister.create(ForgeRegistries.STRUCTURE_FEATURES, ModRef.ID);
 
-    public static final RegistryObject<RaidArenaStructure> RAID_ARENA =
-        STRUCTURES.register("arena", () -> new RaidArenaStructure(NoFeatureConfig.CODEC));
+    //public static final RegistryObject<RaidArenaStructure> RAID_ARENA = STRUCTURES.register("arena", () -> new RaidArenaStructure(NoFeatureConfig.CODEC));
 
     public static StructureFeature<NoFeatureConfig, ? extends Structure<NoFeatureConfig>> RAID_ARENA_FEATURE;
 
@@ -50,14 +51,31 @@ public class ModStructures {
         Structure.STRUCTURES_REGISTRY.put(RAID_ARENA.getId().toString(), RAID_ARENA.get());*/
     }
 
+    public static void loadArenas() {
+        RaidArenas.load();
+
+        for (Map.Entry<String, RaidArenaDefinition> entry : RaidArenas.getArenas().entrySet()) {
+            RaidArenas.addStructure(entry.getKey(), STRUCTURES.register(entry.getKey(), () -> new RaidArenaStructure(entry.getValue(), NoFeatureConfig.CODEC)));
+        }
+    }
+
     /* average distance apart in chunks between spawn attempts */
     /* minimum distance apart in chunks between spawn attempts. MUST BE LESS THAN ABOVE VALUE*/
     /* this modifies the seed of the structure so no two structures always spawn over each-other.
     Make this large and unique. */
     public static void setupStructures() {
-        setupMapSpacingAndLand(RAID_ARENA.get(),
-            new StructureSeparationSettings(100, 50, 1982764981),
-            true);
+        //setupMapSpacingAndLand(RAID_ARENA.get(),
+        //    new StructureSeparationSettings(100, 50, 1982764981),
+        //    true);
+
+        for (String key : RaidArenas.getKeys()) {
+            RaidArenaDefinition def = RaidArenas.getDefinition(key);
+            RegistryObject<RaidArenaStructure> structure = RaidArenas.getStructure(key);
+
+            setupMapSpacingAndLand(structure.get(),
+                new StructureSeparationSettings(def.spacing, def.separation, key.hashCode()),
+                true);
+        }
     }
 
     /**

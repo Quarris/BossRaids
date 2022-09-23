@@ -12,14 +12,12 @@ public class WaveDefinition {
     public final String bossbar;
     private final List<ItemRequirement> requirements;
     public final List<BossEntityDefinition> bosses;
-    public final List<MinionEntityDefinition> minions;
 
-    public WaveDefinition(ResourceLocation loot, String bossbar, List<ItemRequirement> requirements, List<BossEntityDefinition> bosses, List<MinionEntityDefinition> minions) {
+    public WaveDefinition(ResourceLocation loot, String bossbar, List<ItemRequirement> requirements, List<BossEntityDefinition> bosses) {
         this.loot = loot;
         this.bossbar = bossbar;
         this.requirements = requirements;
         this.bosses = bosses;
-        this.minions = minions;
     }
 
     public List<ItemRequirement> getRequirements() {
@@ -37,7 +35,6 @@ public class WaveDefinition {
                 ", bossbarName='" + bossbar + '\'' +
                 ", requirements=" + requirements +
                 ", bosses=" + bosses +
-                ", minions=" + minions +
                 '}';
     }
 }

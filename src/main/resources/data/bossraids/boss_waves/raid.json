@@ -14,25 +14,32 @@
             "bossbar": "1/5 The Chilling Zone",
             "bosses": [
                 {
-                    "id": "witch1",
-                    "entity": "minecraft:witch",
+                    "id": "ed",
+                    "entity": "minecraft:drowned",
                     "name": "Frostie",
+                    "nbt": "{NoAi:1}",
                     "health": 250,
-                    "effects": []
-                },
-                {
-                    "id": "witch2",
-                    "entity": "minecraft:witch"
-                }
-            ],
-            "minions": [
-                {
-                    "leader": "frostmaw",
-                    "entity": "minecraft:husk",
-                    "count": {
-                        "min": "3",
-                        "max": "5"
-                    }
+                    "effects": [],
+                    "crystals": [
+                        [0, 0, 0],
+                        [2, 0, 0],
+                        [0, 0, 2],
+                        [-2, 0, 0],
+                        [0, 0, -2]
+                    ],
+                    "offset": {
+                        "type": "fixed",
+                        "pos": [0, 5, 0]
+                    },
+                    "minions": [
+                        {
+                            "entity": "minecraft:husk",
+                            "count": {
+                                "min": "3",
+                                "max": "5"
+                            }
+                        }
+                    ]
                 }
             ]
         },
@@ -47,21 +54,32 @@
                     "entity": "minecraft:spider",
                     "name": "Chilli",
                     "health": 250,
-                    "effects": []
+                    "effects": [],
+                    "offset": {
+                        "type": "randomSquare",
+                        "minHeight": 0,
+                        "maxHeight": 10,
+                        "radius": 5
+                    }
                 },
                 {
                     "id": "witch2",
-                    "entity": "minecraft:zombie"
-                }
-            ],
-            "minions": [
-                {
-                    "leader": "frostmaw",
-                    "entity": "minecraft:husk",
-                    "count": {
-                        "min": "3",
-                        "max": "5"
-                    }
+                    "entity": "minecraft:zombie",
+                    "offset": {
+                        "type": "minmaxCircle",
+                        "minHeight": -2000,
+                        "minRadius": 10,
+                        "maxRadius": 25
+                    },
+                    "minions": [
+                        {
+                            "entity": "minecraft:husk",
+                            "count": {
+                                "min": "3",
+                                "max": "5"
+                            }
+                        }
+                    ]
                 }
             ]
         },
@@ -88,21 +106,20 @@
                     "entity": "minecraft:enderman",
                     "name": "Chilli",
                     "health": 250,
-                    "effects": []
+                    "effects": [],
+                    "minions": [
+                        {
+                            "entity": "minecraft:husk",
+                            "count": {
+                                "min": "3",
+                                "max": "5"
+                            }
+                        }
+                    ]
                 },
                 {
                     "id": "witch2",
                     "entity": "minecraft:witch"
-                }
-            ],
-            "minions": [
-                {
-                    "leader": "frostmaw",
-                    "entity": "minecraft:husk",
-                    "count": {
-                        "min": "3",
-                        "max": "5"
-                    }
                 }
             ]
         }

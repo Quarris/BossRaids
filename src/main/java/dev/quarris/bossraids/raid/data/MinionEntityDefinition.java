@@ -4,15 +4,14 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.util.RangedInteger;
 
 public class MinionEntityDefinition {
-    private String leader;
+
     private EntityType<?> entity;
     private RangedInteger count;
 
     @Override
     public String toString() {
         return "MinionEntityDefinition{" +
-                "leader='" + leader + '\'' +
-                ", entity=" + entity +
+                "entity='" + entity + '\'' +
                 ", count=" + count +
                 '}';
     }

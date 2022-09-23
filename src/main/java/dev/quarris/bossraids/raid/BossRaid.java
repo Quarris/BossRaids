@@ -29,7 +29,6 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants;
-import org.apache.logging.log4j.core.jmx.Server;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -211,6 +210,10 @@ public class BossRaid {
     public void startWave(ServerWorld level, WaveDefinition wave) {
         wave.bosses.forEach(bossDef -> {
             LivingEntity boss = bossDef.create(level, this.pos);
+            if (boss == null) {
+                ModRef.LOGGER.error("Unknown entity for raid '{}'", bossDef.getId());
+                return;
+            }
             this.level.addFreshEntity(boss);
             this.bosses.put(bossDef.getId(), boss);
             this.totalHealth += boss.getHealth();

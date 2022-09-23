@@ -1,12 +1,9 @@
 package dev.quarris.bossraids.world.structures;
 
-import dev.quarris.bossraids.ModRef;
 import dev.quarris.bossraids.content.KeystoneTileEntity;
-import dev.quarris.bossraids.init.ModContent;
 import dev.quarris.bossraids.init.ModStructures;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ChestTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.ResourceLocation;
@@ -14,33 +11,26 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MutableBoundingBox;
 import net.minecraft.world.IServerWorld;
-import net.minecraft.world.gen.feature.structure.*;
+import net.minecraft.world.gen.feature.structure.TemplateStructurePiece;
 import net.minecraft.world.gen.feature.template.BlockIgnoreStructureProcessor;
 import net.minecraft.world.gen.feature.template.PlacementSettings;
 import net.minecraft.world.gen.feature.template.Template;
 import net.minecraft.world.gen.feature.template.TemplateManager;
 import net.minecraftforge.common.util.Constants;
 
-import java.util.List;
 import java.util.Random;
 
 public class RaidArenaPieces {
 
-    public static final ResourceLocation STRUCTURE_LOCATION = ModRef.res("arena");
-
-    public static final ResourceLocation RAID_ID = ModRef.res("raid");
-
-    public static void addPieces(TemplateManager templates, BlockPos pos, Rotation rotation, List<StructurePiece> pieces, Random rand) {
-        pieces.add(new Piece(templates, STRUCTURE_LOCATION, pos, rotation));
-    }
-
     public static class Piece extends TemplateStructurePiece {
         private final ResourceLocation templateLocation;
+        private final ResourceLocation raidId;
         private final Rotation rotation;
 
-        public Piece(TemplateManager templates, ResourceLocation id, BlockPos pos, Rotation rotation) {
+        public Piece(TemplateManager templates, ResourceLocation id, ResourceLocation raidId, BlockPos pos, Rotation rotation) {
             super(ModStructures.RAID_ARENA_PIECE_TYPE, 0);
             this.templateLocation = id;
+            this.raidId = raidId;
             this.templatePosition = pos;
             this.rotation = rotation;
             this.loadTemplate(templates);
@@ -50,6 +40,7 @@ public class RaidArenaPieces {
             super(ModStructures.RAID_ARENA_PIECE_TYPE, nbt);
             this.templateLocation = new ResourceLocation(nbt.getString("Template"));
             this.rotation = Rotation.valueOf(nbt.getString("Rot"));
+            this.raidId = new ResourceLocation(nbt.getString("RaidId"));
             this.loadTemplate(templates);
         }
 
@@ -63,6 +54,7 @@ public class RaidArenaPieces {
             super.addAdditionalSaveData(nbt);
             nbt.putString("Template", this.templateLocation.toString());
             nbt.putString("Rot", this.rotation.name());
+            nbt.putString("RaidId", this.raidId.toString());
         }
 
         protected void handleDataMarker(String data, BlockPos pos, IServerWorld level, Random rand, MutableBoundingBox aabb) {
@@ -70,7 +62,7 @@ public class RaidArenaPieces {
                 level.setBlock(pos, Blocks.AIR.defaultBlockState(), Constants.BlockFlags.DEFAULT);
                 TileEntity tile = level.getBlockEntity(pos.below());
                 if (tile instanceof KeystoneTileEntity) {
-                    ((KeystoneTileEntity) tile).setRaid(RAID_ID);
+                    ((KeystoneTileEntity) tile).setRaid(this.raidId);
                 }
             }
         }

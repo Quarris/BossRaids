@@ -118,6 +118,8 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
         }
     }
 
+
+
     public enum KeystoneAction {
         INSERT, RENAME, DISPLAY_REQUIREMENTS, IN_PROGRESS, INVALID
     }
