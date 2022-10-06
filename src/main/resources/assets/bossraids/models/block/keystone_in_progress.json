@@ -1,6 +1,6 @@
 {
     "parent": "minecraft:block/cube_all",
     "textures": {
-        "all": "bossraids:block/keystone"
+        "all": "bossraids:block/keystone_in_progress"
     }
 }

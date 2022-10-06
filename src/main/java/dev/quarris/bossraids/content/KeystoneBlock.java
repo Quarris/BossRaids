@@ -1,11 +1,15 @@
 package dev.quarris.bossraids.content;
 
-import dev.quarris.bossraids.raid.RaidState;
+import dev.quarris.bossraids.raid.data.RaidState;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
@@ -24,15 +28,29 @@ import javax.annotation.Nullable;
 
 public class KeystoneBlock extends Block {
 
-    public static final EnumProperty<RaidState> RAID_STATE_PROP = EnumProperty.create("raid_state", RaidState.class);
-    private static final VoxelShape SHAPE = makeShape();
+    public static final EnumProperty<RaidState> RAID_STATE = EnumProperty.create("raid_state", RaidState.class);
+    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+    private static final VoxelShape SHAPE = VoxelShapes.block(); //makeShape();
+
     public KeystoneBlock() {
-        super(AbstractBlock.Properties.of(Material.STONE).noDrops());
+        super(AbstractBlock.Properties.copy(Blocks.BEDROCK));
+
+        this.registerDefaultState(this.getStateDefinition().any().setValue(ACTIVE, false).setValue(RAID_STATE, RaidState.INACTIVE));
     }
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(RAID_STATE_PROP);
+        builder.add(ACTIVE, RAID_STATE);
+    }
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState state) {
+        return state.getValue(ACTIVE);
+    }
+
+    @Override
+    public int getAnalogOutputSignal(BlockState state, World level, BlockPos pos) {
+        return state.getValue(RAID_STATE).ordinal();
     }
 
     @Override
@@ -43,11 +61,13 @@ public class KeystoneBlock extends Block {
         }
 
         KeystoneTileEntity keystone = (KeystoneTileEntity) tile;
-        if (keystone.activateWithItem(player, player.getItemInHand(hand)) != KeystoneTileEntity.KeystoneAction.INVALID) {
-            return ActionResultType.sidedSuccess(level.isClientSide());
+        ItemStack held = player.getItemInHand(hand);
+
+        if (keystone.activateWithItem(player, held) != KeystoneAction.INVALID) {
+
         }
 
-        return ActionResultType.PASS;
+        return ActionResultType.sidedSuccess(level.isClientSide());
     }
 
     @Override
@@ -74,5 +94,9 @@ public class KeystoneBlock extends Block {
         shape = VoxelShapes.join(shape, VoxelShapes.box(0.25, 0.375, 0.25, 0.75, 0.5, 0.75), IBooleanFunction.OR);
 
         return shape;
+    }
+
+    public enum KeystoneAction {
+        INSERT, RENAME, DISPLAY_REQUIREMENTS, CLIENT, ACTIVATE, IN_PROGRESS, INVALID
     }
 }

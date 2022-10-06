@@ -2,6 +2,7 @@ package dev.quarris.bossraids.world.events;
 
 import com.mojang.serialization.Codec;
 import dev.quarris.bossraids.ModRef;
+import dev.quarris.bossraids.raid.BossRaidManager;
 import dev.quarris.bossraids.raid.arena.RaidArenas;
 import dev.quarris.bossraids.world.structures.RaidArenaStructure;
 import net.minecraft.util.ResourceLocation;
@@ -13,8 +14,10 @@ import net.minecraft.world.gen.feature.structure.Structure;
 import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import org.apache.logging.log4j.LogManager;
@@ -25,6 +28,13 @@ import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = ModRef.ID)
 public class WorldEvents {
+
+    @SubscribeEvent
+    public static void updateRaids(TickEvent.WorldTickEvent event) {
+        if (event.phase == TickEvent.Phase.START && event.world instanceof ServerWorld) {
+            BossRaidManager.getBossRaids((ServerWorld) event.world).update();
+        }
+    }
 
     //@SubscribeEvent
     public static void onBiomeLoad(BiomeLoadingEvent event) {

@@ -1,4 +1,4 @@
-package dev.quarris.bossraids.raid.offsets;
+package dev.quarris.bossraids.util.offsets;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -9,11 +9,13 @@ import java.util.Random;
 public interface IOffset {
     Vector3d getOffset(Vector3d pos);
 
+    JsonObject toJson();
+
     default float randomBetween(Random random, float min, float max) {
         return min + random.nextFloat() * (max - min);
     }
 
-    static IOffset getOffsetFromJson(JsonObject json) {
+    static IOffset fromJson(JsonObject json) {
         String type = json.get("type").getAsString();
         switch (type) {
             case "randomCircle": {

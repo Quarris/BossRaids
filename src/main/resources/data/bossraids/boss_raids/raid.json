@@ -1,4 +1,5 @@
 {
+    "radius": 32,
     "loot": "minecraft:chests/buried_treasure",
     "waves": [
         {
@@ -50,7 +51,7 @@
             "bossbar": "2/5 The Fire Spire",
             "bosses": [
                 {
-                    "id": "witch1",
+                    "id": "sp",
                     "entity": "minecraft:spider",
                     "name": "Chilli",
                     "health": 250,
@@ -60,11 +61,20 @@
                         "minHeight": 0,
                         "maxHeight": 10,
                         "radius": 5
-                    }
+                    },
+                    "minions": [
+                        {
+                            "entity": "minecraft:husk",
+                            "count": {
+                                "min": "3",
+                                "max": "5"
+                            }
+                        }
+                    ]
                 },
                 {
                     "id": "witch2",
-                    "entity": "minecraft:zombie",
+                    "entity": "minecraft:witch",
                     "offset": {
                         "type": "minmaxCircle",
                         "minHeight": -2000,
@@ -73,10 +83,15 @@
                     },
                     "minions": [
                         {
-                            "entity": "minecraft:husk",
+                            "entity": "minecraft:creeper",
                             "count": {
-                                "min": "3",
-                                "max": "5"
+                                "min": "1",
+                                "max": "3"
+                            },
+                            "offset": {
+                                "type": "randomCircle",
+                                "minHeight": -2000,
+                                "radius": 5
                             }
                         }
                     ]
@@ -95,7 +110,7 @@
                     "ingredient": {
                         "tag": "minecraft:planks"
                     },
-                    "count": 24
+                    "count": 1
                 }
             ],
             "loot": "minecraft:entities/witch",
@@ -106,16 +121,7 @@
                     "entity": "minecraft:enderman",
                     "name": "Chilli",
                     "health": 250,
-                    "effects": [],
-                    "minions": [
-                        {
-                            "entity": "minecraft:husk",
-                            "count": {
-                                "min": "3",
-                                "max": "5"
-                            }
-                        }
-                    ]
+                    "effects": []
                 },
                 {
                     "id": "witch2",

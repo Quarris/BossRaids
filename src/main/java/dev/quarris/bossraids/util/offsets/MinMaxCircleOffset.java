@@ -1,5 +1,6 @@
-package dev.quarris.bossraids.raid.offsets;
+package dev.quarris.bossraids.util.offsets;
 
+import com.google.gson.JsonObject;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.Random;
@@ -26,5 +27,16 @@ public class MinMaxCircleOffset implements IOffset {
         float distance = this.randomBetween(this.random, this.minRadius, this.maxRadius);
         Vector3d vOff = new Vector3d(1, y, 0).yRot(angle).multiply(distance, 1, distance);
         return pos.add(vOff);
+    }
+
+    @Override
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "minmaxCircle");
+        json.addProperty("minHeight", this.minHeight);
+        json.addProperty("maxHeight", this.maxHeight);
+        json.addProperty("minRadius", this.minRadius);
+        json.addProperty("maxRadius", this.maxRadius);
+        return json;
     }
 }

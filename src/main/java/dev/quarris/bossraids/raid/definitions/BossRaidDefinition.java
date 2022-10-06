@@ -1,4 +1,4 @@
-package dev.quarris.bossraids.raid.data;
+package dev.quarris.bossraids.raid.definitions;
 
 import net.minecraft.util.ResourceLocation;
 
@@ -9,6 +9,7 @@ public class BossRaidDefinition {
 
     private ResourceLocation loot;
     private List<WaveDefinition> waves = new ArrayList<>();
+    private int radius;
 
     public boolean isEmpty() {
         return this.waves.isEmpty();
@@ -31,5 +32,13 @@ public class BossRaidDefinition {
         return "BossWaveDefinition{" +
                 "waves=" + waves +
                 '}';
+    }
+
+    public int getRadius() {
+        return this.radius;
+    }
+
+    public int getWaveCount() {
+        return this.waves.size();
     }
 }

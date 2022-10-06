@@ -1,4 +1,4 @@
-package dev.quarris.bossraids.raid;
+package dev.quarris.bossraids.raid.data;
 
 import net.minecraft.util.IStringSerializable;
 

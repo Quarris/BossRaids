@@ -12,6 +12,14 @@ public class JsonUtils {
 
     private static final JsonParser PARSER = new JsonParser();
 
+    public static JsonElement stringToJson(String jsonString) {
+        return PARSER.parse(jsonString);
+    }
+
+    public static String jsonToString(JsonElement json) {
+        return GSON.toJson(json);
+    }
+
     public static JsonElement parseJsonFile(File file) {
         try {
             return PARSER.parse(new FileReader(file));

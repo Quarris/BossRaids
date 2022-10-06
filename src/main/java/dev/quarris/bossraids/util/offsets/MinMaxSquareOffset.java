@@ -1,5 +1,6 @@
-package dev.quarris.bossraids.raid.offsets;
+package dev.quarris.bossraids.util.offsets;
 
+import com.google.gson.JsonObject;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.Random;
@@ -35,5 +36,16 @@ public class MinMaxSquareOffset implements IOffset {
     private static float getSquareDistance(float angle) {
         angle = (float) ((angle + Math.PI / 4) % (Math.PI / 2) - Math.PI / 4);
         return 1 / (float)Math.cos(angle);
+    }
+
+    @Override
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "minmaxSquare");
+        json.addProperty("minHeight", this.minHeight);
+        json.addProperty("maxHeight", this.maxHeight);
+        json.addProperty("minRadius", this.minRadius);
+        json.addProperty("maxRadius", this.maxRadius);
+        return json;
     }
 }

@@ -1,9 +1,16 @@
 package dev.quarris.bossraids.content;
 
 import dev.quarris.bossraids.init.ModContent;
-import dev.quarris.bossraids.raid.BossRaid;
+import dev.quarris.bossraids.raid.BossRaidDataManager;
+import dev.quarris.bossraids.raid.BossRaidManager;
+import dev.quarris.bossraids.raid.data.BossRaid;
+import dev.quarris.bossraids.raid.data.RaidState;
+import dev.quarris.bossraids.raid.definitions.BossRaidDefinition;
+import dev.quarris.bossraids.util.ItemRequirement;
 import net.minecraft.block.BlockState;
+import net.minecraft.command.arguments.ItemInput;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -11,93 +18,140 @@ import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class KeystoneTileEntity extends TileEntity implements ITickableTileEntity {
 
-
-    private BossRaid raid;
+    private ResourceLocation defId;
+    private boolean isActive;
+    private long raidId;
 
     public KeystoneTileEntity() {
         super(ModContent.KEYSTONE_TILE.get());
     }
 
-    public KeystoneAction activateWithItem(PlayerEntity player, ItemStack item) {
+    public KeystoneBlock.KeystoneAction activateWithItem(PlayerEntity player, ItemStack item) {
+        // Set raid definition id
         if (player.isCreative() && item.getItem() == Items.NAME_TAG) {
             if (item.hasCustomHoverName()) {
                 try {
                     ResourceLocation id = new ResourceLocation(item.getHoverName().getString());
-                    this.setRaid(id);
-                    return KeystoneAction.RENAME;
+                    if (BossRaidDataManager.INST.getRaidDefinition(id) != null) {
+                        this.defId = id;
+                        return KeystoneBlock.KeystoneAction.RENAME;
+                    }
                 } catch (ResourceLocationException e) {
                     // Name is not a valid resource name, do not try to change the boss raid id
                 }
             }
         }
 
-        if (this.raid == null) {
-            return KeystoneAction.INVALID;
-        }
-
+        // Print debug
         if (item.isEmpty()) {
             if (!player.level.isClientSide()) {
-                player.displayClientMessage(new StringTextComponent(String.valueOf(this.raid.getId())), false);
-                player.displayClientMessage(new StringTextComponent(String.valueOf(this.raid.getRequirements())), false);
-                player.displayClientMessage(new StringTextComponent(this.raid.getState().toString()), false);
+                /*if (this.defId != null) {
+                    player.displayClientMessage(new StringTextComponent("DefId: " + this.defId), false);
+                }
+                if (!this.isActive) {
+                    player.displayClientMessage(new StringTextComponent("Not active"), false);
+                    if (this.defId != null) {
+                        player.displayClientMessage(new StringTextComponent("Requirements: " + BossRaidDataManager.INST.getRaidDefinition(this.defId).getWave(0).getRequirements()), false);
+                    }
+                } else {
+                    player.displayClientMessage(new StringTextComponent("RaidId: " + this.raidId), false);
+                    player.displayClientMessage(new StringTextComponent("State: " + this.getBlockState().getValue(KeystoneBlock.RAID_STATE)), false);
+                    List<ItemRequirement.Instance> reqs = BossRaidManager.getBossRaids((ServerWorld) this.level).get(this.raidId).getRequirements();
+                    player.displayClientMessage(new StringTextComponent("Requirements: " + reqs), false);
+                }*/
+                List<ItemRequirement.Instance> requirements = null;
+                if (this.isActive && this.getBlockState().getValue(KeystoneBlock.RAID_STATE) == RaidState.AWAITING) {
+                    requirements = BossRaidManager.getBossRaids((ServerWorld) player.level).get(this.raidId).getRequirements();
+                } else if (!this.isActive && this.defId != null) {
+                    requirements = BossRaidDataManager.INST.getRaidDefinition(this.defId).getWave(0).getRequirements().stream().map(ItemRequirement::inst).collect(Collectors.toList());
+                }
+
+                if (requirements != null) {
+                    player.displayClientMessage(new StringTextComponent("Requires: "), false);
+                    for (ItemRequirement.Instance req : requirements) {
+                        player.displayClientMessage(new StringTextComponent(" - " + req.getRequirementDisplay()), false);
+                    }
+                }
             }
-            return KeystoneAction.DISPLAY_REQUIREMENTS;
+            return KeystoneBlock.KeystoneAction.DISPLAY_REQUIREMENTS;
         }
 
-        if (this.raid.getState().inProgress()) {
-            return KeystoneAction.IN_PROGRESS;
+        if (this.level.isClientSide()) {
+            return KeystoneBlock.KeystoneAction.CLIENT;
         }
 
-
-
-        if (this.raid.getState().inactive()) {
-            return KeystoneAction.INVALID;
+        if (this.defId == null) {
+            return KeystoneBlock.KeystoneAction.INVALID;
         }
 
-        if (this.raid.getState().awaiting()) {
-            // Add required item
-            if (this.raid.tryInsertRequirement(player, item)) {
-                return KeystoneAction.INSERT;
+        // Server logic
+        ServerWorld serverLevel = (ServerWorld) this.level;
+        ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+
+        BossRaidManager manager = BossRaidManager.getBossRaids(serverLevel);
+        BossRaidDefinition raidDefinition = BossRaidDataManager.INST.getRaidDefinition(this.defId);
+
+        // Try activating the keystone with a new raid, if it's not yet active.
+        if (!this.isActive) {
+            Optional<Long> id = manager.tryActivateRaid(serverPlayer, this.worldPosition, raidDefinition, item);
+
+            if (id.isPresent()) {
+                this.raidId = id.get();
+                this.setActive(true);
+                return KeystoneBlock.KeystoneAction.ACTIVATE;
             }
+
+            return KeystoneBlock.KeystoneAction.INVALID;
         }
 
-        return KeystoneAction.INVALID;
+        BossRaid raid = manager.get(this.raidId);
+        if (raid.tryInsertRequirement(serverPlayer, item)) {
+            return KeystoneBlock.KeystoneAction.INSERT;
+        }
+
+        return KeystoneBlock.KeystoneAction.INVALID;
     }
 
     @Override
     public void tick() {
-        if (this.raid != null) {
-            this.raid.update();
+        if (this.level.isClientSide()) {
+            return;
+        }
+
+        ServerWorld serverLevel = (ServerWorld) this.level;
+        if (this.isActive) {
+            BossRaid raid = BossRaidManager.getBossRaids(serverLevel).get(this.raidId);
+            if (raid == null) {
+                this.setActive(false);
+            }
         }
     }
 
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        if (this.raid != null) {
-            this.raid.onRemoved();
-        }
+    public boolean isActive() {
+        return this.isActive;
     }
 
-    @Override
-    public void setLevelAndPosition(World level, BlockPos pos) {
-        super.setLevelAndPosition(level, pos);
-        if (this.raid != null) {
-            this.raid.setLevelAndPos(level, pos);
-        }
+    public long getRaidId() {
+        return this.raidId;
     }
 
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
         nbt = super.save(nbt);
-        if (this.raid != null) {
-            nbt.put("Raid", this.raid.serialize());
+        if (this.defId != null) {
+            nbt.putString("RaidDefinition", this.defId.toString());
+        }
+        if (this.isActive) {
+            nbt.putLong("RaidId", this.raidId);
         }
         return nbt;
     }
@@ -105,22 +159,27 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
     @Override
     public void load(BlockState state, CompoundNBT nbt) {
         super.load(state, nbt);
-        if (nbt.contains("Raid")) {
-            this.raid = new BossRaid(this, nbt.getCompound("Raid"));
+        if (nbt.contains("RaidDefinition")) {
+            this.defId = new ResourceLocation(nbt.getString("RaidDefinition"));
+        }
+        if (nbt.contains("RaidId")) {
+            this.raidId = nbt.getLong("RaidId");
+            this.isActive = true;
         }
     }
 
     public void setRaid(ResourceLocation id) {
-        if (this.raid != null) {
-            this.raid.setId(id);
-        } else {
-            this.raid = new BossRaid(this, id);
+        this.defId = id;
+    }
+
+    public void setActive(boolean active) {
+        if (this.isActive != active) {
+            this.isActive = active;
+            this.level.setBlockAndUpdate(this.worldPosition, this.getBlockState().setValue(KeystoneBlock.ACTIVE, active));
         }
     }
 
-
-
-    public enum KeystoneAction {
-        INSERT, RENAME, DISPLAY_REQUIREMENTS, IN_PROGRESS, INVALID
+    public void clearRaid() {
+        this.setActive(false);
     }
 }

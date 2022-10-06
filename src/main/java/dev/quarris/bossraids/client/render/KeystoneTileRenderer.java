@@ -2,8 +2,11 @@ package dev.quarris.bossraids.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.quarris.bossraids.content.KeystoneTileEntity;
+import dev.quarris.bossraids.raid.BossRaidManager;
+import dev.quarris.bossraids.raid.data.BossRaid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.player.PlayerEntity;
@@ -26,8 +29,8 @@ public class KeystoneTileRenderer extends TileEntityRenderer<KeystoneTileEntity>
         }
 
         BlockPos lookPos = ((BlockRayTraceResult) rayTraceResult).getBlockPos();
-        if (tile.getBlockPos().equals(lookPos)) {
-
+        if (!tile.getBlockPos().equals(lookPos)) {
+            return;
         }
     }
 }

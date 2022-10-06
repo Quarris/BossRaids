@@ -1,5 +1,6 @@
-package dev.quarris.bossraids.raid.offsets;
+package dev.quarris.bossraids.util.offsets;
 
+import com.google.gson.JsonObject;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.Random;
@@ -23,5 +24,15 @@ public class RandomSquareOffset implements IOffset {
         float z = this.randomBetween(this.random, -this.radius, this.radius + 1);
         float y = this.randomBetween(this.random, this.minHeight, this.maxHeight);
         return pos.add(x, y, z);
+    }
+
+    @Override
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject();
+        json.addProperty("type", "randomSquare");
+        json.addProperty("radius", this.radius);
+        json.addProperty("minHeight", this.minHeight);
+        json.addProperty("maxHeight", this.maxHeight);
+        return json;
     }
 }

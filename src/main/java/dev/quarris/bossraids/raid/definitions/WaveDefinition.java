@@ -1,4 +1,4 @@
-package dev.quarris.bossraids.raid.data;
+package dev.quarris.bossraids.raid.definitions;
 
 import dev.quarris.bossraids.util.ItemRequirement;
 import net.minecraft.util.ResourceLocation;

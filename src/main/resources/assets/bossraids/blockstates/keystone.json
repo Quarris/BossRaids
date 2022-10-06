@@ -1,6 +1,24 @@
 {
     "variants": {
-        "": {
+        "active=false": {
+            "model": "bossraids:block/keystone"
+        },
+        "active=true,raid_state=charging":{
+            "model": "bossraids:block/keystone_charging"
+        },
+        "active=true,raid_state=awaiting":{
+            "model": "bossraids:block/keystone_waiting"
+        },
+        "active=true,raid_state=in_progress":{
+            "model": "bossraids:block/keystone_in_progress"
+        },
+
+        "active=true,raid_state=inactive":{
+            "model": "bossraids:block/keystone"
+        },
+        "active=true,raid_state=idle":{
+            "model": "bossraids:block/keystone"
+        },"active=true,raid_state=completed":{
             "model": "bossraids:block/keystone"
         }
     }

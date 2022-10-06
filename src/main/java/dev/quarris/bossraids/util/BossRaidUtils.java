@@ -6,7 +6,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.quarris.bossraids.ModRef;
-import dev.quarris.bossraids.raid.offsets.IOffset;
+import dev.quarris.bossraids.util.offsets.IOffset;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -73,7 +73,7 @@ public class BossRaidUtils {
                     return ForgeRegistries.POTIONS.getValue(name);
                 })
                 .registerTypeAdapter(Ingredient.class, (JsonDeserializer) (json, typeOfT, context) -> Ingredient.fromJson(json))
-                .registerTypeAdapter(IOffset.class, (JsonDeserializer) (json, typeOfT, context) -> IOffset.getOffsetFromJson(json.getAsJsonObject()))
+                .registerTypeAdapter(IOffset.class, (JsonDeserializer) (json, typeOfT, context) -> IOffset.fromJson(json.getAsJsonObject()))
                 .create();
         }
 
