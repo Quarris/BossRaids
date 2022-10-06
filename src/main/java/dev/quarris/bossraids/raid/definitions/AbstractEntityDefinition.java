@@ -58,17 +58,23 @@ public abstract class AbstractEntityDefinition<T extends Entity> {
 
         T e = this.entity.create(level, this.nbt, StringUtils.isNullOrEmpty(this.name) ? null : new StringTextComponent(this.name), null, new BlockPos(pos), SpawnReason.EVENT, true, false);
 
-        if (e instanceof MobEntity) {
-            ((MobEntity) e).setPersistenceRequired();
-        }
-
         if (e == null) {
             ModRef.LOGGER.warn("Could not create boss entity {}", this);
             return null;
         }
 
-        this.editEntity(level, pos, e);
+        if (e instanceof MobEntity) {
+            ((MobEntity) e).setPersistenceRequired();
+        }
 
+        if (this.nbt != null) {
+            CompoundNBT saved = new CompoundNBT();
+            e.save(saved);
+            saved.merge(this.nbt);
+            e.load(saved);
+        }
+
+        this.editEntity(level, pos, e);
         return e;
     }
 

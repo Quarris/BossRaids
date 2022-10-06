@@ -18,7 +18,7 @@
                     "id": "ed",
                     "entity": "minecraft:drowned",
                     "name": "Frostie",
-                    "nbt": "{NoAi:1}",
+                    "nbt": "{NoAI:1}",
                     "health": 250,
                     "effects": [],
                     "crystals": [
