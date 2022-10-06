@@ -55,6 +55,10 @@ public class KeystoneBlock extends Block {
 
     @Override
     public ActionResultType use(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
+        if (level.isClientSide()) {
+            return ActionResultType.sidedSuccess(level.isClientSide());
+        }
+
         TileEntity tile = level.getBlockEntity(pos);
         if (!(tile instanceof KeystoneTileEntity)) {
             return ActionResultType.PASS;

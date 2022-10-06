@@ -85,10 +85,6 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
             return KeystoneBlock.KeystoneAction.DISPLAY_REQUIREMENTS;
         }
 
-        if (this.level.isClientSide()) {
-            return KeystoneBlock.KeystoneAction.CLIENT;
-        }
-
         if (this.defId == null) {
             return KeystoneBlock.KeystoneAction.INVALID;
         }
