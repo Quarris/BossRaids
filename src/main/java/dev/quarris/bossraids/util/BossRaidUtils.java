@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.quarris.bossraids.ModRef;
 import dev.quarris.bossraids.util.offsets.IOffset;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
@@ -18,6 +19,7 @@ import net.minecraft.util.JSONUtils;
 import net.minecraft.util.RangedInteger;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
 
 public class BossRaidUtils {
 
@@ -54,29 +56,26 @@ public class BossRaidUtils {
                     CompoundNBT nbt = JSONUtils.getAsObject(jo, "nbt", null, context, CompoundNBT.class);
                     return new ItemStack(item, count, nbt);
                 })
-                .registerTypeAdapter(EntityType.class, (JsonDeserializer) (json, typeOfT, context) -> {
-                    ResourceLocation name = context.deserialize(json, ResourceLocation.class);
-                    if (!ForgeRegistries.ENTITIES.containsKey(name)) {
-                        ModRef.LOGGER.error("Entity with id '{}' not found", name);
-                        return null;
-                    }
-
-                    return ForgeRegistries.ENTITIES.getValue(name);
-                })
-                .registerTypeAdapter(Effect.class, (JsonDeserializer) (json, typeOfT, context) -> {
-                    ResourceLocation name = context.deserialize(json, ResourceLocation.class);
-                    if (!ForgeRegistries.POTIONS.containsKey(name)) {
-                        ModRef.LOGGER.error("Entity with id '{}' not found", name);
-                        return null;
-                    }
-
-                    return ForgeRegistries.POTIONS.getValue(name);
-                })
+                .registerTypeAdapter(EntityType.class, resourceRegistryAdapter(ForgeRegistries.ENTITIES))
+                .registerTypeAdapter(Effect.class, resourceRegistryAdapter(ForgeRegistries.POTIONS))
+                .registerTypeAdapter(Attribute.class, resourceRegistryAdapter(ForgeRegistries.ATTRIBUTES))
                 .registerTypeAdapter(Ingredient.class, (JsonDeserializer) (json, typeOfT, context) -> Ingredient.fromJson(json))
                 .registerTypeAdapter(IOffset.class, (JsonDeserializer) (json, typeOfT, context) -> IOffset.fromJson(json.getAsJsonObject()))
                 .create();
         }
 
         return gson;
+    }
+
+    private static JsonDeserializer resourceRegistryAdapter(IForgeRegistry registry) {
+        return (json, typeOfT, context) -> {
+            ResourceLocation name = context.deserialize(json, ResourceLocation.class);
+            if (!registry.containsKey(name)) {
+                ModRef.LOGGER.error("Value with id '{}' for registry '{}' not found", name, registry.getRegistryName());
+                return null;
+            }
+
+            return registry.getValue(name);
+        };
     }
 }

@@ -4,7 +4,9 @@ import com.mojang.serialization.Codec;
 import dev.quarris.bossraids.ModRef;
 import dev.quarris.bossraids.raid.BossRaidManager;
 import dev.quarris.bossraids.raid.arena.RaidArenas;
+import dev.quarris.bossraids.raid.data.BossRaid;
 import dev.quarris.bossraids.world.structures.RaidArenaStructure;
+import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
@@ -28,6 +30,18 @@ import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = ModRef.ID)
 public class WorldEvents {
+
+    @SubscribeEvent
+    public static void createRaidTeam(WorldEvent.Load event) {
+        if (event.getWorld() instanceof ServerWorld) {
+            ServerWorld level = (ServerWorld) event.getWorld();
+            ScorePlayerTeam team = level.getScoreboard().getPlayerTeam("bossraids");
+            if (team == null) {
+                team = level.getScoreboard().addPlayerTeam("bossraids");
+            }
+            BossRaid.RAID_TEAM = team;
+        }
+    }
 
     @SubscribeEvent
     public static void updateRaids(TickEvent.WorldTickEvent event) {

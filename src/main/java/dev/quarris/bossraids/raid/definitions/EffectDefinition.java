@@ -7,8 +7,13 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class EffectDefinition {
 
-    private Effect effect;
-    private int amplifier;
+    public final Effect effect;
+    public final int amplifier;
+
+    public EffectDefinition(Effect effect, int amplifier) {
+        this.effect = effect;
+        this.amplifier = amplifier;
+    }
 
     public EffectDefinition(CompoundNBT tag) {
         this.effect = ForgeRegistries.POTIONS.getValue(new ResourceLocation(tag.getString("Effect")));

@@ -5,10 +5,15 @@ import dev.quarris.bossraids.ModRef;
 import dev.quarris.bossraids.content.KeystoneBlock;
 import dev.quarris.bossraids.raid.definitions.BossRaidDefinition;
 import dev.quarris.bossraids.raid.definitions.WaveDefinition;
+import dev.quarris.bossraids.util.InventoryUtils;
 import dev.quarris.bossraids.util.ItemRequirement;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameterSets;
@@ -17,8 +22,12 @@ import net.minecraft.loot.LootTable;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.scoreboard.ScorePlayerTeam;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.server.CustomServerBossInfo;
 import net.minecraft.server.CustomServerBossInfoManager;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
@@ -28,6 +37,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerBossInfo;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -36,6 +48,7 @@ import java.util.stream.Collectors;
 public class BossRaid {
 
     private static final int MAX_CHARGE_TIMER = 4 * 20;
+    public static ScorePlayerTeam RAID_TEAM;
 
     //private ResourceLocation id;
     private final World level;
@@ -78,6 +91,10 @@ public class BossRaid {
         this.currentWave = nbt.getInt("Wave");
         this.chargeTimer = nbt.getInt("Charge");
         this.initiatorUUID = nbt.getUUID("Initiator");
+        PlayerEntity player = level.getPlayerByUUID(this.initiatorUUID);
+        if (player != null) {
+            this.initiator =  (ServerPlayerEntity) player;
+        }
         for (INBT reqNbt : nbt.getList("Requirements", Constants.NBT.TAG_COMPOUND)) {
             this.requirements.add(ItemRequirement.deserialize((CompoundNBT) reqNbt));
         }
@@ -139,6 +156,7 @@ public class BossRaid {
         this.setupRequirementsBar();
         this.setState(RaidState.AWAITING);
     }
+
     private void onAwaiting(ServerWorld level, WaveDefinition wave) {
         if (!this.requirements.isEmpty()) {
             this.bossbar.setValue(this.bossbar.getMax() - this.getRequiredCount());
@@ -167,7 +185,7 @@ public class BossRaid {
             //return;
         }
 
-        int health = 0;
+        float health = 0;
         Iterator<Map.Entry<String, RaidBoss>> ite = this.bosses.entrySet().iterator();
         while (ite.hasNext()) {
             Map.Entry<String, RaidBoss> entry = ite.next();
@@ -180,8 +198,7 @@ public class BossRaid {
             }
 
             raidBoss.update(level);
-            LivingEntity boss = raidBoss.getEntity(level);
-            health += boss.getHealth();
+            health += raidBoss.getCurrentHealth(level);
         }
 
         this.totalHealth = health;
@@ -221,16 +238,32 @@ public class BossRaid {
         });
 
     }
+
     public void startWave(ServerWorld level, WaveDefinition wave) {
         wave.bosses.forEach(bossDef -> {
-            LivingEntity boss = bossDef.create(level, Vector3d.atCenterOf(this.center));
+            Vector3d pos = Vector3d.atCenterOf(this.center);
+            LivingEntity boss = bossDef.create(level, pos);
             if (boss == null) {
                 ModRef.LOGGER.error("Unknown entity for raid '{}'", bossDef.getId());
                 return;
             }
             this.level.addFreshEntity(boss);
-            this.bosses.put(bossDef.getId(), new RaidBoss(boss, bossDef));
-            this.totalHealth += boss.getHealth();
+
+            LivingEntity mount = null;
+            if (bossDef.mount != null) {
+                mount = bossDef.mount.create(level, pos);
+                this.level.addFreshEntity(mount);
+                boss.startRiding(mount, true);
+            }
+            LivingEntity rider = null;
+            if (bossDef.rider != null) {
+                rider = bossDef.rider.create(level, pos);
+                this.level.addFreshEntity(rider);
+                rider.startRiding(boss, true);
+            }
+            RaidBoss raidBoss = new RaidBoss(boss, mount, rider, bossDef);
+            this.bosses.put(bossDef.getId(), raidBoss);
+            this.totalHealth += raidBoss.getCurrentHealth(level);
         });
 
         this.setupBossBar(new StringTextComponent(wave.bossbar), bossbar -> {
@@ -256,9 +289,22 @@ public class BossRaid {
     }
 
     private void spawnLoot(List<ItemStack> loot) {
+        List<IItemHandler> invs = new ArrayList<>();
+        for (Direction dir : Direction.values()) {
+            TileEntity blockEntity = this.level.getBlockEntity(this.center.relative(dir));
+            if (blockEntity != null) {
+                blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, dir.getOpposite()).ifPresent(invs::add);
+            }
+        }
         for (ItemStack stack : loot) {
-            ItemEntity itemEntity = new ItemEntity(this.level, this.center.getX() + 0.5, this.center.getY() + 1, this.center.getZ() + 0.5, stack);
-            this.level.addFreshEntity(itemEntity);
+            for (IItemHandler inv : invs) {
+                stack = InventoryUtils.tryInsertItem(inv, stack);
+            }
+
+            if (!stack.isEmpty()) {
+                ItemEntity itemEntity = new ItemEntity(this.level, this.center.getX() + 0.5, this.center.getY() + 1, this.center.getZ() + 0.5, stack);
+                this.level.addFreshEntity(itemEntity);
+            }
         }
     }
 

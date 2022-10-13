@@ -13,7 +13,7 @@ public class Minions {
 
     private final MinionEntityDefinition definition;
     private final Set<UUID> minions = new HashSet<>();
-    private int cooldown;
+    private int cooldown = 30;
 
     public Minions(MinionEntityDefinition definition) {
         this.definition = definition;

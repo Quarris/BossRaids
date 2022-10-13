@@ -14,7 +14,7 @@ import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants;
 
-public class MinionEntityDefinition extends AbstractEntityDefinition<Entity> {
+public class MinionEntityDefinition extends EntityDefinition<Entity> {
 
     private RangedInteger count = new RangedInteger(1, 1);
     private RangedInteger cooldown = new RangedInteger(20, 100);

@@ -50,7 +50,6 @@ public class BossRaidDataManager extends JsonReloadListener {
                 ModRef.LOGGER.error("Could not parse BossWave " + name, e);
             }
         });
-        System.out.println(this.bossRaidData);
     }
 
     public ResourceLocation getId(BossRaidDefinition definition) {

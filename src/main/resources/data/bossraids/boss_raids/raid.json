@@ -1,133 +1,177 @@
 {
-    "radius": 32,
-    "loot": "minecraft:chests/buried_treasure",
-    "waves": [
+  "radius": 32,
+  "loot": "minecraft:chests/buried_treasure",
+  "waves": [
+    {
+      "requirements": [
         {
-            "requirements": [
-                {
-                    "ingredient": {
-                        "item": "minecraft:nether_star"
-                    },
-                    "count": 2
-                }
-            ],
-            "loot": "minecraft:entities/zombie",
-            "bossbar": "1/5 The Chilling Zone",
-            "bosses": [
-                {
-                    "id": "ed",
-                    "entity": "minecraft:drowned",
-                    "name": "Frostie",
-                    "nbt": "{NoAI:1}",
-                    "health": 250,
-                    "effects": [],
-                    "crystals": [
-                        [0, 0, 0],
-                        [2, 0, 0],
-                        [0, 0, 2],
-                        [-2, 0, 0],
-                        [0, 0, -2]
-                    ],
-                    "offset": {
-                        "type": "fixed",
-                        "pos": [0, 5, 0]
-                    },
-                    "minions": [
-                        {
-                            "entity": "minecraft:husk",
-                            "count": {
-                                "min": "3",
-                                "max": "5"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "requirements": [
-            ],
-            "loot": "minecraft:chests/simple_dungeon",
-            "bossbar": "2/5 The Fire Spire",
-            "bosses": [
-                {
-                    "id": "sp",
-                    "entity": "minecraft:spider",
-                    "name": "Chilli",
-                    "health": 250,
-                    "effects": [],
-                    "offset": {
-                        "type": "randomSquare",
-                        "minHeight": 0,
-                        "maxHeight": 10,
-                        "radius": 5
-                    },
-                    "minions": [
-                        {
-                            "entity": "minecraft:husk",
-                            "count": {
-                                "min": "3",
-                                "max": "5"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "id": "witch2",
-                    "entity": "minecraft:witch",
-                    "offset": {
-                        "type": "minmaxCircle",
-                        "minHeight": -2000,
-                        "minRadius": 10,
-                        "maxRadius": 25
-                    },
-                    "minions": [
-                        {
-                            "entity": "minecraft:creeper",
-                            "count": {
-                                "min": "1",
-                                "max": "3"
-                            },
-                            "offset": {
-                                "type": "randomCircle",
-                                "minHeight": -2000,
-                                "radius": 5
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "requirements": [
-                {
-                    "ingredient": {
-                        "item": "minecraft:rotten_flesh"
-                    },
-                    "count": 5
-                },
-                {
-                    "ingredient": {
-                        "tag": "minecraft:planks"
-                    },
-                    "count": 1
-                }
-            ],
-            "loot": "minecraft:entities/witch",
-            "bossbar": "3/5 The Poison",
-            "bosses": [
-                {
-                    "id": "witch1",
-                    "entity": "minecraft:enderman",
-                    "name": "Chilli",
-                    "health": 250,
-                    "effects": []
-                },
-                {
-                    "id": "witch2",
-                    "entity": "minecraft:witch"
-                }
-            ]
+          "ingredient": {
+            "tag": "minecraft:planks"
+          },
+          "count": 1
         }
-    ]
+      ],
+      "loot": "minecraft:entities/witch",
+      "bossbar": "Teamers",
+      "bosses": [
+        {
+          "id": "skelli",
+          "entity": "minecraft:skeleton",
+          "name": "Chilli"
+        },
+        {
+          "id": "zomberts",
+          "entity": "minecraft:zombie"
+        }
+      ]
+    },
+    {
+      "requirements": [
+        {
+          "ingredient": {
+            "item": "minecraft:nether_star"
+          },
+          "count": 2
+        }
+      ],
+      "loot": "minecraft:entities/zombie",
+      "bossbar": "1/5 The Chilling Zone",
+      "bosses": [
+        {
+          "id": "ed",
+          "entity": "minecraft:drowned",
+          "name": "Frostie",
+          "mount": {
+            "entity": "minecraft:skeleton",
+            "name": "Spider",
+            "effects": [
+              {
+                "effect": "minecraft:speed",
+                "amplifier": 5
+              }
+            ]
+          },
+          "offset": {
+            "type": "fixed",
+            "pos": [
+              0,
+              5,
+              0
+            ]
+          },
+          "minions": [
+            {
+              "entity": "minecraft:husk",
+              "count": {
+                "min": "3",
+                "max": "5"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "requirements": [
+      ],
+      "loot": "minecraft:chests/simple_dungeon",
+      "bossbar": "2/5 The Fire Spire",
+      "bosses": [
+        {
+          "id": "sp",
+          "entity": "minecraft:spider",
+          "name": "Chilli",
+          "attributes": [
+            {
+              "attribute": "minecraft:generic.max_health",
+              "level": 500
+            },
+            {
+              "attribute": "minecraft:generic.movement_speed",
+              "level": 5
+            }
+          ],
+          "offset": {
+            "type": "randomSquare",
+            "minHeight": 0,
+            "maxHeight": 10,
+            "radius": 5
+          },
+          "rider": {
+            "entity": "minecraft:pillager",
+            "name": "Skeleton"
+          },
+          "minions": [
+            {
+              "entity": "minecraft:husk",
+              "count": {
+                "min": "3",
+                "max": "5"
+              }
+            }
+          ]
+        },
+        {
+          "id": "witch2",
+          "entity": "minecraft:witch",
+          "offset": {
+            "type": "minmaxCircle",
+            "minHeight": -2000,
+            "minRadius": 10,
+            "maxRadius": 25
+          },
+          "mount": {
+            "entity": "minecraft:ravager"
+          },
+          "rider": {
+            "entity": "minecraft:parrot"
+          },
+          "minions": [
+            {
+              "entity": "minecraft:creeper",
+              "count": {
+                "min": "1",
+                "max": "3"
+              },
+              "offset": {
+                "type": "randomCircle",
+                "minHeight": -2000,
+                "radius": 5
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "requirements": [
+        {
+          "ingredient": {
+            "item": "minecraft:rotten_flesh"
+          },
+          "count": 5
+        },
+        {
+          "ingredient": {
+            "tag": "minecraft:planks"
+          },
+          "count": 1
+        }
+      ],
+      "loot": "minecraft:entities/witch",
+      "bossbar": "3/5 The Poison",
+      "bosses": [
+        {
+          "id": "witch1",
+          "entity": "minecraft:enderman",
+          "name": "Chilli",
+          "health": 250
+        },
+        {
+          "id": "witch2",
+          "entity": "minecraft:witch"
+        }
+      ]
+    }
+  ]
 }
