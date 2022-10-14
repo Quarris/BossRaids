@@ -8,6 +8,7 @@ import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
@@ -19,15 +20,19 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class EntityDefinition<T extends Entity> {
+
+    public static final String DAMAGE_IMMUNITIES_TAG = ModRef.res("damage_immunities").toString();
 
     protected EntityType<T> entity;
     protected String name;
     protected Set<EffectDefinition> effects;
     protected Set<AttributeDefinition> attributes;
     protected CompoundNBT nbt;
+    protected Set<String> damageImmunities;
 
     public EntityDefinition() {
     }
@@ -70,21 +75,31 @@ public class EntityDefinition<T extends Entity> {
         }
 
         if (entity instanceof LivingEntity) {
+            LivingEntity le = (LivingEntity) entity;
             if (this.attributes != null) {
                 for (AttributeDefinition attrDef : this.attributes) {
-                    ModifiableAttributeInstance inst = ((LivingEntity) entity).getAttribute(attrDef.attribute);
+                    ModifiableAttributeInstance inst = le.getAttribute(attrDef.attribute);
                     if (inst != null) {
                         inst.setBaseValue(attrDef.level);
                     } else {
                         ModRef.LOGGER.warn("Entity '{}' does not have attribute '{}'", this.entity.getRegistryName(), attrDef.attribute.getRegistryName());
                     }
                 }
+                le.setHealth(le.getMaxHealth());
             }
 
             if (this.effects != null) {
                 for (EffectDefinition effectDef : this.effects) {
-                    ((LivingEntity) entity).forceAddEffect(new EffectInstance(effectDef.effect, Integer.MAX_VALUE, effectDef.amplifier, false, false));
+                    le.forceAddEffect(new EffectInstance(effectDef.effect, Integer.MAX_VALUE, effectDef.amplifier, false, false));
                 }
+            }
+
+            if (this.damageImmunities != null && !this.damageImmunities.isEmpty()) {
+                ListNBT damageImmnunities = new ListNBT();
+                for (String damage : this.damageImmunities) {
+                    damageImmnunities.add(StringNBT.valueOf(damage));
+                }
+                le.getPersistentData().put(DAMAGE_IMMUNITIES_TAG, damageImmnunities);
             }
 
             level.getScoreboard().addPlayerToTeam(entity.getStringUUID(), BossRaid.RAID_TEAM);

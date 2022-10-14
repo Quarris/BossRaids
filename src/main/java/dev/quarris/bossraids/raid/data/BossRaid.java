@@ -248,22 +248,24 @@ public class BossRaid {
                 return;
             }
             this.level.addFreshEntity(boss);
+            this.totalHealth += boss.getMaxHealth();
 
             LivingEntity mount = null;
             if (bossDef.mount != null) {
                 mount = bossDef.mount.create(level, pos);
                 this.level.addFreshEntity(mount);
                 boss.startRiding(mount, true);
+                this.totalHealth += mount.getMaxHealth();
             }
             LivingEntity rider = null;
             if (bossDef.rider != null) {
                 rider = bossDef.rider.create(level, pos);
                 this.level.addFreshEntity(rider);
                 rider.startRiding(boss, true);
+                this.totalHealth += rider.getMaxHealth();
             }
             RaidBoss raidBoss = new RaidBoss(boss, mount, rider, bossDef);
             this.bosses.put(bossDef.getId(), raidBoss);
-            this.totalHealth += raidBoss.getCurrentHealth(level);
         });
 
         this.setupBossBar(new StringTextComponent(wave.bossbar), bossbar -> {

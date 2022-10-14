@@ -6,7 +6,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.scoreboard.ScorePlayerTeam;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants;
 
@@ -16,13 +19,15 @@ import java.util.UUID;
 
 public class RaidBoss {
 
+    private final BlockPos spawnPos;
     private final UUID uuid;
     private final UUID mountUuid;
     private final UUID riderUuid;
     private final Set<Minions> minions = new HashSet<>();
 
-    public RaidBoss(LivingEntity entity, LivingEntity mount, LivingEntity rider, BossEntityDefinition definition) {
-        this.uuid = entity.getUUID();
+    public RaidBoss(LivingEntity boss, LivingEntity mount, LivingEntity rider, BossEntityDefinition definition) {
+        this.spawnPos = boss.blockPosition();
+        this.uuid = boss.getUUID();
         this.mountUuid = mount != null ? mount.getUUID() : null;
         this.riderUuid = rider != null ? rider.getUUID() : null;
         if (definition.minions != null) {
@@ -31,6 +36,7 @@ public class RaidBoss {
     }
 
     public RaidBoss(CompoundNBT tag) {
+        this.spawnPos = NBTUtil.readBlockPos(tag.getCompound("SpawnPos"));
         this.uuid = tag.getUUID("Id");
         this.mountUuid = tag.hasUUID("MountId") ? tag.getUUID("MountId") : null;
         this.riderUuid = tag.hasUUID("RiderId") ? tag.getUUID("RiderId") : null;
@@ -40,12 +46,22 @@ public class RaidBoss {
     }
 
     public void update(ServerWorld level) {
+        this.resetEntityPosition(this.getBoss(level));
+        this.resetEntityPosition(this.getRider(level));
+        this.resetEntityPosition(this.getMount(level));
         for (Minions m : this.minions) {
             m.update(level);
             if (m.shouldSpawn()) {
                 this.spawnMinions(level, m);
                 m.resetCooldown();
             }
+        }
+    }
+
+    private void resetEntityPosition(LivingEntity entity) {
+        if (entity != null && !World.isInWorldBounds(entity.blockPosition())) {
+            entity.setPos(this.spawnPos.getX(), this.spawnPos.getY(), this.spawnPos.getZ());
+            entity.fallDistance = 0;
         }
     }
 
@@ -178,6 +194,8 @@ public class RaidBoss {
         if (this.mountUuid != null) {
             tag.putUUID("MountId", this.mountUuid);
         }
+
+        tag.put("SpawnPos", NBTUtil.writeBlockPos(this.spawnPos));
         return tag;
     }
 }

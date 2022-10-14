@@ -20,8 +20,11 @@
           "name": "Chilli"
         },
         {
-          "id": "zomberts",
-          "entity": "minecraft:zombie"
+          "id": "zombert",
+          "entity": "minecraft:zombie",
+          "damageImmunities": [
+            "onFire"
+          ]
         }
       ]
     },

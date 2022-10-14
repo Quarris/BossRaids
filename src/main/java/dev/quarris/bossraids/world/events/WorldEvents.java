@@ -17,6 +17,7 @@ import net.minecraft.world.gen.settings.DimensionStructuresSettings;
 import net.minecraft.world.gen.settings.StructureSeparationSettings;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -30,6 +31,18 @@ import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = ModRef.ID)
 public class WorldEvents {
+
+    @SubscribeEvent
+    public static void cancelDimensionHopping(EntityTravelToDimensionEvent event) {
+
+    }
+
+    @SubscribeEvent
+    public static void saveBossRaidData(WorldEvent.Save event) {
+        if (event.getWorld() instanceof ServerWorld) {
+            BossRaidManager.getBossRaids((ServerWorld) event.getWorld()).setDirty();
+        }
+    }
 
     @SubscribeEvent
     public static void createRaidTeam(WorldEvent.Load event) {
