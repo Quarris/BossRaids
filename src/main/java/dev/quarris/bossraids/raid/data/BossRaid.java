@@ -1,5 +1,6 @@
 package dev.quarris.bossraids.raid.data;
 
+import dev.quarris.bossraids.content.KeystoneTileEntity;
 import dev.quarris.bossraids.raid.BossRaidDataManager;
 import dev.quarris.bossraids.ModRef;
 import dev.quarris.bossraids.content.KeystoneBlock;
@@ -54,6 +55,7 @@ public class BossRaid {
     private final World level;
     private final BlockPos center;
     private final BossRaidDefinition definition;
+    private final KeystoneTileEntity keystone;
     private final long raidId;
 
     private RaidState state = RaidState.INACTIVE;
@@ -76,15 +78,17 @@ public class BossRaid {
         this.center = center;
         this.raidId = raidId;
         this.definition = BossRaidDataManager.INST.getRaidDefinition(defId);
+        this.keystone = (KeystoneTileEntity) level.getBlockEntity(center);
         this.bossbarId = ModRef.res("bossraid_" + this.raidId);
         this.bossbar = level.getServer().getCustomBossEvents().create(this.bossbarId, StringTextComponent.EMPTY);
     }
 
     public BossRaid(ServerWorld level, CompoundNBT nbt) {
         this.level = level;
-        this.definition = BossRaidDataManager.INST.getRaidDefinition(new ResourceLocation(nbt.getString("Definition")));
-        this.raidId = nbt.getLong("Id");
         this.center = BlockPos.of(nbt.getLong("Center"));
+        this.raidId = nbt.getLong("Id");
+        this.definition = BossRaidDataManager.INST.getRaidDefinition(new ResourceLocation(nbt.getString("Definition")));
+        this.keystone = (KeystoneTileEntity) level.getBlockEntity(center);
         this.bossbarId = ModRef.res("bossraid_" + this.raidId);
         this.bossbar = level.getServer().getCustomBossEvents().get(this.bossbarId);
         this.state = RaidState.valueOf(nbt.getString("State"));
@@ -124,6 +128,10 @@ public class BossRaid {
     }
 
     public void update() {
+        if (this.level == null) {
+            return;
+        }
+
         if (this.level.isClientSide()) {
             return;
         }
@@ -320,6 +328,7 @@ public class BossRaid {
 
     private void fillRequirements(WaveDefinition wave) {
         this.requirements = wave.getRequirements().stream().map(ItemRequirement::inst).collect(Collectors.toList());
+        this.keystone.sendRequirementsToClient();
     }
 
     public void spawnFinalLoot() {

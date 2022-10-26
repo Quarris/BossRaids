@@ -3,6 +3,7 @@ package dev.quarris.bossraids.util;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 
 import java.util.Arrays;
 
@@ -27,6 +28,13 @@ public class ItemRequirement {
         return inst;
     }
 
+    public static Instance readFromBuffer(PacketBuffer buf) {
+        Ingredient ingredient = Ingredient.fromNetwork(buf);
+        Instance inst = new ItemRequirement(ingredient, -1).inst();
+        inst.count = buf.readVarInt();
+        return inst;
+    }
+
     public Instance inst() {
         return new Instance();
     }
@@ -34,9 +42,9 @@ public class ItemRequirement {
     @Override
     public String toString() {
         return "ItemRequirement{" +
-                "ingredient=" + Arrays.toString(ingredient.getItems()) +
-                ", count=" + count +
-                '}';
+            "ingredient=" + Arrays.toString(ingredient.getItems()) +
+            ", count=" + count +
+            '}';
     }
 
     public class Instance {
@@ -82,12 +90,23 @@ public class ItemRequirement {
             return nbt;
         }
 
+        public void writeToBuffer(PacketBuffer buf) {
+            ItemRequirement.this.ingredient.toNetwork(buf);
+            buf.writeVarInt(this.count);
+        }
+
         @Override
         public String toString() {
             return "ItemRequirement$Instance{" +
-                    "ingredient=" + ItemRequirement.this.ingredient.toJson() +
-                    "count=" + count +
-                    '}';
+                "ingredient=" + ItemRequirement.this.ingredient.toJson() +
+                "count=" + count +
+                '}';
+        }
+
+        public ItemStack getLoopingItem(long gameTime) {
+            ItemStack[] items = ItemRequirement.this.ingredient.getItems();
+            int timedIndex = (int) (gameTime / 20);
+            return items[timedIndex % items.length];
         }
     }
 }

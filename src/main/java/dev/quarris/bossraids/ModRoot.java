@@ -2,6 +2,7 @@ package dev.quarris.bossraids;
 
 import dev.quarris.bossraids.client.render.KeystoneTileRenderer;
 import dev.quarris.bossraids.init.ModContent;
+import dev.quarris.bossraids.network.PacketHandler;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -29,5 +30,6 @@ public class ModRoot {
 
     public void commonSetup(FMLCommonSetupEvent event) {
         //event.enqueueWork(ModStructures::setupStructures);
+        PacketHandler.init();
     }
 }
