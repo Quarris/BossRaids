@@ -1,6 +1,8 @@
 package dev.quarris.bossraids.content;
 
 import dev.quarris.bossraids.init.ModContent;
+import dev.quarris.bossraids.network.ClientboundItemRequirementInfo;
+import dev.quarris.bossraids.network.PacketHandler;
 import dev.quarris.bossraids.raid.BossRaidDataManager;
 import dev.quarris.bossraids.raid.BossRaidManager;
 import dev.quarris.bossraids.raid.data.BossRaid;
@@ -20,7 +22,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,6 +35,9 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
     private ResourceLocation defId;
     private boolean isActive;
     private long raidId;
+
+    @OnlyIn(Dist.CLIENT)
+    public List<ItemRequirement.Instance> displayItems;
 
     public KeystoneTileEntity() {
         super(ModContent.KEYSTONE_TILE.get());
@@ -43,6 +51,7 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
                     ResourceLocation id = new ResourceLocation(item.getHoverName().getString());
                     if (BossRaidDataManager.INST.getRaidDefinition(id) != null) {
                         this.defId = id;
+                        this.sendRequirementsToClient();
                         return KeystoneBlock.KeystoneAction.RENAME;
                     }
                 } catch (ResourceLocationException e) {
@@ -99,10 +108,10 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
         // Try activating the keystone with a new raid, if it's not yet active.
         if (!this.isActive) {
             Optional<Long> id = manager.tryActivateRaid(serverPlayer, this.worldPosition, raidDefinition, item);
-
             if (id.isPresent()) {
                 this.raidId = id.get();
                 this.setActive(true);
+                this.sendRequirementsToClient();
                 return KeystoneBlock.KeystoneAction.ACTIVATE;
             }
 
@@ -111,6 +120,7 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
 
         BossRaid raid = manager.get(this.raidId);
         if (raid.tryInsertRequirement(serverPlayer, item)) {
+            this.sendRequirementsToClient();
             return KeystoneBlock.KeystoneAction.INSERT;
         }
 
@@ -123,6 +133,10 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
             return;
         }
 
+        if (this.level.getGameTime() % 40 == 0) {
+            this.sendRequirementsToClient();
+        }
+
         ServerWorld serverLevel = (ServerWorld) this.level;
         if (this.isActive) {
             BossRaid raid = BossRaidManager.getBossRaids(serverLevel).get(this.raidId);
@@ -132,12 +146,33 @@ public class KeystoneTileEntity extends TileEntity implements ITickableTileEntit
         }
     }
 
+    public void sendRequirementsToClient() {
+        if (this.level.isClientSide()) {
+            return;
+        }
+
+        List<ItemRequirement.Instance> requirements = Collections.emptyList();
+        if (this.isActive && this.getBlockState().getValue(KeystoneBlock.RAID_STATE) == RaidState.AWAITING) {
+            requirements = BossRaidManager.getBossRaids((ServerWorld) this.level).get(this.raidId).getRequirements();
+        } else if (!this.isActive && this.defId != null) {
+            requirements = BossRaidDataManager.INST.getRaidDefinition(this.defId).getWave(0).getRequirements().stream().map(ItemRequirement::inst).collect(Collectors.toList());
+        }
+
+        ClientboundItemRequirementInfo packet = new ClientboundItemRequirementInfo(this.worldPosition, requirements);
+        PacketHandler.sendAllAround(packet, this.worldPosition, this.level.dimension(), 32);
+    }
+
     public boolean isActive() {
         return this.isActive;
     }
 
     public long getRaidId() {
         return this.raidId;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void setDisplayItems(List<ItemRequirement.Instance> items) {
+        this.displayItems = items;
     }
 
     @Override

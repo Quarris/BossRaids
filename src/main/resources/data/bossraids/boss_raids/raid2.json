@@ -6,7 +6,56 @@
       "requirements": [
         {
           "ingredient": {
+            "tag": "minecraft:planks"
+          },
+          "count": 100
+        },
+        {
+          "ingredient": {
+            "tag": "minecraft:wool"
+          },
+          "count": 2
+        },
+        {
+          "ingredient": {
+            "item": "minecraft:diamond"
+          },
+          "count": 3
+        },
+        {
+          "ingredient": {
             "item": "minecraft:stick"
+          },
+          "count": 1
+        },
+        {
+          "ingredient": {
+            "item": "minecraft:brown_mushroom"
+          },
+          "count": 1
+        },
+        {
+          "ingredient": [
+            {
+              "item": "minecraft:glowstone_dust"
+            },
+            {
+              "item": "minecraft:redstone"
+            }
+          ],
+          "count": 16
+        },
+        {
+          "ingredient": {
+            "item": "minecraft:wooden_sword"
+          },
+          "count": 1
+        },
+        {
+          "ingredient": {
+            "type": "forge:nbt",
+            "item": "minecraft:potion",
+            "nbt": "{Potion:\"minecraft:water_breathing\"}"
           },
           "count": 1
         }

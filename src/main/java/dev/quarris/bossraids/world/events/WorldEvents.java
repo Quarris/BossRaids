@@ -33,11 +33,6 @@ import java.util.Map;
 public class WorldEvents {
 
     @SubscribeEvent
-    public static void cancelDimensionHopping(EntityTravelToDimensionEvent event) {
-
-    }
-
-    @SubscribeEvent
     public static void saveBossRaidData(WorldEvent.Save event) {
         if (event.getWorld() instanceof ServerWorld) {
             BossRaidManager.getBossRaids((ServerWorld) event.getWorld()).setDirty();

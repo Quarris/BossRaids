@@ -1,9 +1,6 @@
 package dev.quarris.bossraids.util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.quarris.bossraids.ModRef;
 import dev.quarris.bossraids.util.offsets.IOffset;
@@ -30,28 +27,37 @@ public class BossRaidUtils {
             gson = new GsonBuilder()
                 .registerTypeAdapter(ResourceLocation.class, (JsonDeserializer) (json, typeOfT, context) -> new ResourceLocation(json.getAsString()))
                 .registerTypeAdapter(RangedInteger.class, (JsonDeserializer) (json, typeOfT, context) -> {
-                    if (json.isJsonObject()) {
-                        JsonObject jo = json.getAsJsonObject();
-                        return RangedInteger.of(jo.get("min").getAsInt(), jo.get("max").getAsInt());
+                    try {
+                        if (json.isJsonObject()) {
+                            JsonObject jo = json.getAsJsonObject();
+                            return RangedInteger.of(jo.get("min").getAsInt(), jo.get("max").getAsInt());
+                        }
+                        return RangedInteger.of(json.getAsInt(), json.getAsInt());
+                    } catch (JsonParseException e) {
+                        throw new BossRaidException("Cannot parse ranged int " + json, e);
                     }
-                    return RangedInteger.of(json.getAsInt(), json.getAsInt());
                 })
                 .registerTypeAdapter(CompoundNBT.class, (JsonDeserializer) (json, typeOfT, context) -> {
                     try {
                         return JsonToNBT.parseTag(json.getAsString());
                     } catch (CommandSyntaxException e) {
-                        ModRef.LOGGER.warn("Invalid Compound tag found {}", json);
-                        return null;
+                        throw new BossRaidException("Invalid Compound tag found " + json);
                     }
                 })
                 .registerTypeAdapter(ItemStack.class, (JsonDeserializer) (json, typeOfT, context) -> {
                     if (json.isJsonPrimitive()) {
                         Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(json.getAsString()));
+                        if (item == null) {
+                            throw new BossRaidException("Invalid item json " + json.getAsString());
+                        }
                         return new ItemStack(item);
                     }
 
                     JsonObject jo = json.getAsJsonObject();
                     Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(jo.get("item").getAsString()));
+                    if (item == null) {
+                        throw new BossRaidException("Invalid item " + json.getAsString());
+                    }
                     int count = JSONUtils.getAsInt(jo, "count", 1);
                     CompoundNBT nbt = JSONUtils.getAsObject(jo, "nbt", null, context, CompoundNBT.class);
                     return new ItemStack(item, count, nbt);
@@ -71,8 +77,7 @@ public class BossRaidUtils {
         return (json, typeOfT, context) -> {
             ResourceLocation name = context.deserialize(json, ResourceLocation.class);
             if (!registry.containsKey(name)) {
-                ModRef.LOGGER.error("Value with id '{}' for registry '{}' not found", name, registry.getRegistryName());
-                return null;
+                throw new BossRaidException("Value with id '" + name + "' for registry '" + registry.getRegistryName() + "' not found");
             }
 
             return registry.getValue(name);

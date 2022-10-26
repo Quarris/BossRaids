@@ -62,6 +62,6 @@ public interface IOffset {
             }
         }
 
-        throw new IllegalArgumentException("Invalid Offset Type");
+        throw new IllegalArgumentException("Invalid Offset Type " + type);
     }
 }
