@@ -54,6 +54,7 @@ public class BossRaid {
     //private ResourceLocation id;
     private final World level;
     private final BlockPos center;
+    private final ResourceLocation definitionId;
     private final BossRaidDefinition definition;
     private final KeystoneTileEntity keystone;
     private final long raidId;
@@ -77,6 +78,7 @@ public class BossRaid {
         this.level = level;
         this.center = center;
         this.raidId = raidId;
+        this.definitionId = defId;
         this.definition = BossRaidDataManager.INST.getRaidDefinition(defId);
         this.keystone = (KeystoneTileEntity) level.getBlockEntity(center);
         this.bossbarId = ModRef.res("bossraid_" + this.raidId);
@@ -87,7 +89,8 @@ public class BossRaid {
         this.level = level;
         this.center = BlockPos.of(nbt.getLong("Center"));
         this.raidId = nbt.getLong("Id");
-        this.definition = BossRaidDataManager.INST.getRaidDefinition(new ResourceLocation(nbt.getString("Definition")));
+        this.definitionId = new ResourceLocation(nbt.getString("Definition"));
+        this.definition = BossRaidDataManager.INST.getRaidDefinition(this.definitionId);
         this.keystone = (KeystoneTileEntity) level.getBlockEntity(center);
         this.bossbarId = ModRef.res("bossraid_" + this.raidId);
         this.bossbar = level.getServer().getCustomBossEvents().get(this.bossbarId);
@@ -394,7 +397,7 @@ public class BossRaid {
 
     public CompoundNBT serialize() {
         CompoundNBT nbt = new CompoundNBT();
-        nbt.putString("Definition", BossRaidDataManager.INST.getId(this.definition).toString());
+        nbt.putString("Definition", this.definitionId.toString());
         nbt.putLong("Id", this.raidId);
         nbt.putLong("Center", this.center.asLong());
         nbt.putString("State", this.state.name());

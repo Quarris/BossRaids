@@ -19,7 +19,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.0-RC4'
+version = '1.0'
 group = 'dev.quarris.bossraids' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'BossRaids'
 
