@@ -15,15 +15,29 @@
       "bossbar": "Teamers",
       "bosses": [
         {
-          "id": "skelli",
+          "id": "zombert",
           "entity": "minecraft:skeleton",
-          "name": "Chilli"
+          "damageImmunities": [
+            "onFire"
+          ],
+          "minions": [
+            {
+              "entity": "minecraft:bat",
+              "name": "Chilli"
+            }
+          ]
         },
         {
           "id": "zombert",
           "entity": "minecraft:zombie",
           "damageImmunities": [
             "onFire"
+          ],
+          "minions": [
+            {
+              "entity": "artifacts:mimic",
+              "name": "Chilli"
+            }
           ]
         }
       ]

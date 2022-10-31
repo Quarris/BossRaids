@@ -29,18 +29,4 @@ public class EventHandler {
         Gson gson = BossRaidUtils.getBossRaidGson();
         event.addListener(new BossRaidDataManager(gson));
     }
-
-    @SubscribeEvent
-    public static void cancelDamages(LivingAttackEvent event) {
-        CompoundNBT tag = event.getEntityLiving().getPersistentData();
-        if (!tag.contains(EntityDefinition.DAMAGE_IMMUNITIES_TAG)) {
-            return;
-        }
-
-        boolean shouldCancel = tag.getList(EntityDefinition.DAMAGE_IMMUNITIES_TAG, Constants.NBT.TAG_STRING).stream()
-            .map(INBT::getAsString)
-            .anyMatch(event.getSource().getMsgId()::equals);
-
-        if (shouldCancel) event.setCanceled(true);
-    }
 }

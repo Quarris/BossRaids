@@ -90,7 +90,7 @@ public class EntityDefinition<T extends Entity> {
 
             if (this.effects != null) {
                 for (EffectDefinition effectDef : this.effects) {
-                    le.forceAddEffect(new EffectInstance(effectDef.effect, Integer.MAX_VALUE, effectDef.amplifier, false, false));
+                    le.addEffect(new EffectInstance(effectDef.effect, Integer.MAX_VALUE, effectDef.amplifier, false, false));
                 }
             }
 

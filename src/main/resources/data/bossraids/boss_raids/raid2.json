@@ -66,11 +66,13 @@
         {
           "id": "skelli",
           "entity": "minecraft:skeleton",
-          "name": "Chilli"
+          "name": "Chilli",
+          "nbt": "{IsBaby:1}"
         },
         {
           "id": "zombert",
           "entity": "minecraft:zombie",
+          "nbt": "{PersistenceRequired:1,HandItems:[{Count:1,id:diamond_axe,tag:{Enchantments:[{id:fortune,lvl:3}]}},{}],ArmorItems:[{},{},{},{Count:1,id:carved_pumpkin}]}",
           "damageImmunities": [
             "onFire"
           ]

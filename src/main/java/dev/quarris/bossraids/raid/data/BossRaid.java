@@ -289,7 +289,7 @@ public class BossRaid {
         WaveDefinition wave = this.definition.getWave(this.currentWave);
         this.removeBossBar();
 
-        if (!this.level.isClientSide()) {
+        if (!this.level.isClientSide() && wave.loot != null) {
             this.spawnLootTable(wave.loot);
         }
 
@@ -335,10 +335,17 @@ public class BossRaid {
     }
 
     public void spawnFinalLoot() {
-        this.spawnLootTable(this.definition.getLootTableId());
+        if (this.definition.getLootTableId() != null) {
+            this.spawnLootTable(this.definition.getLootTableId());
+        }
     }
 
     private void spawnLootTable(ResourceLocation id) {
+        if (id == null) {
+            ModRef.LOGGER.warn("Tried to spawn a 'null' loot table");
+            return;
+        }
+
         if (!this.level.isClientSide()) {
             ServerWorld level = (ServerWorld) this.level;
             LootTable lootTable = level.getServer().getLootTables().get(id);
