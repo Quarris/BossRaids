@@ -10,6 +10,8 @@ public class BossRaidDefinition {
     private ResourceLocation loot;
     private List<WaveDefinition> waves = new ArrayList<>();
     private int radius;
+    private boolean disableFlight;
+
 
     public boolean isEmpty() {
         return this.waves.isEmpty();
@@ -25,6 +27,10 @@ public class BossRaidDefinition {
         }
 
         return this.waves.get(index);
+    }
+
+    public boolean isFlightDisabled() {
+        return this.disableFlight;
     }
 
     @Override

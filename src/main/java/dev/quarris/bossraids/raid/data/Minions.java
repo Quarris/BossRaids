@@ -45,8 +45,8 @@ public class Minions {
         return this.cooldown == 0;
     }
 
-    public Entity createSpawn(ServerWorld level, Vector3d pos) {
-        Entity minion = this.definition.create(level, pos);
+    public Entity createSpawn(ServerWorld level, long raidId, Vector3d pos) {
+        Entity minion = this.definition.create(level, raidId, pos);
         this.minions.add(minion.getUUID());
         return minion;
     }

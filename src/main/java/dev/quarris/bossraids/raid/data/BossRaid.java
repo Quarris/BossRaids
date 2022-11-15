@@ -8,13 +8,10 @@ import dev.quarris.bossraids.raid.definitions.BossRaidDefinition;
 import dev.quarris.bossraids.raid.definitions.WaveDefinition;
 import dev.quarris.bossraids.util.InventoryUtils;
 import dev.quarris.bossraids.util.ItemRequirement;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameterSets;
@@ -24,7 +21,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.scoreboard.ScorePlayerTeam;
-import net.minecraft.scoreboard.Team;
 import net.minecraft.server.CustomServerBossInfo;
 import net.minecraft.server.CustomServerBossInfoManager;
 import net.minecraft.tileentity.TileEntity;
@@ -34,13 +30,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerBossInfo;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -143,6 +139,16 @@ public class BossRaid {
         WaveDefinition wave = this.definition.getWave(this.currentWave);
         this.calculateCombatants(level);
 
+        if (this.definition.isFlightDisabled()) {
+            this.combatants.forEach(player -> {
+                if (player.gameMode.isSurvival() && player.abilities.flying) {
+                    player.abilities.flying = false;
+                    player.onUpdateAbilities();
+                    player.displayClientMessage(new TranslationTextComponent("bossraid.flying_disabled").withStyle(TextFormatting.RED), true);
+                }
+            });
+        }
+
         if (this.state.idle()) {
             this.onIdle(wave);
         }
@@ -208,7 +214,7 @@ public class BossRaid {
                 continue;
             }
 
-            raidBoss.update(level);
+            raidBoss.update(level, this.raidId);
             health += raidBoss.getCurrentHealth(level);
         }
 
@@ -253,7 +259,7 @@ public class BossRaid {
     public void startWave(ServerWorld level, WaveDefinition wave) {
         wave.bosses.forEach(bossDef -> {
             Vector3d pos = Vector3d.atCenterOf(this.center);
-            LivingEntity boss = bossDef.create(level, pos);
+            LivingEntity boss = bossDef.create(level, this.raidId, pos);
             if (boss == null) {
                 ModRef.LOGGER.error("Unknown entity for raid '{}'", bossDef.getId());
                 return;
@@ -263,14 +269,14 @@ public class BossRaid {
 
             LivingEntity mount = null;
             if (bossDef.mount != null) {
-                mount = bossDef.mount.create(level, pos);
+                mount = bossDef.mount.create(level, this.raidId, pos);
                 this.level.addFreshEntity(mount);
                 boss.startRiding(mount, true);
                 this.totalHealth += mount.getMaxHealth();
             }
             LivingEntity rider = null;
             if (bossDef.rider != null) {
-                rider = bossDef.rider.create(level, pos);
+                rider = bossDef.rider.create(level, this.raidId, pos);
                 this.level.addFreshEntity(rider);
                 rider.startRiding(boss, true);
                 this.totalHealth += rider.getMaxHealth();
@@ -319,6 +325,10 @@ public class BossRaid {
                 this.level.addFreshEntity(itemEntity);
             }
         }
+    }
+
+    public CustomServerBossInfo getBossbar() {
+        return this.bossbar;
     }
 
     private void setupBossBar(ITextComponent name, Consumer<CustomServerBossInfo> onCreate) {
@@ -382,7 +392,12 @@ public class BossRaid {
         return this.center.distSqr(player.blockPosition()) <= this.definition.getRadius() * this.definition.getRadius();
     }
 
+    public RaidBoss getRaidBoss(String id) {
+        return this.bosses.get(id);
+    }
+
     public void stop() {
+        this.state = RaidState.INACTIVE;
         this.removeBossBar();
         this.cleanUpBosses();
     }

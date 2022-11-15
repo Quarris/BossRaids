@@ -34,7 +34,7 @@ public class MinionEntityDefinition extends EntityDefinition<Entity> {
     }
 
     @Override
-    protected void editEntity(ServerWorld level, Vector3d pos, Entity entity) {
+    public void customiseEntity(long raidId, ServerWorld level, Vector3d pos, Entity entity) {
         if (this.offset != null) {
             Vector3d offPos = this.offset.getOffset(pos);
             if (World.isOutsideBuildHeight(MathHelper.floor(offPos.y))) {

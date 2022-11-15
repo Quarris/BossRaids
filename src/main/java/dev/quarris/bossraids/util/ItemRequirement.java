@@ -72,9 +72,9 @@ public class ItemRequirement {
         public String getRequirementDisplay() {
             StringBuilder builder = new StringBuilder();
             ItemStack[] items = ItemRequirement.this.ingredient.getItems();
-            builder.append(this.count).append("x ").append(items[0].getItem().getName(items[0]).getString());
+            builder.append(this.count).append("x ").append(items[0].getDisplayName().getString());
             for (int i = 1; i < items.length; i++) {
-                builder.append(" OR ").append(this.count).append("x ").append(items[i].getItem().getName(items[i]).getString());
+                builder.append(" OR ").append(this.count).append("x ").append(items[i].getDisplayName().getString());
             }
             return builder.toString();
         }
