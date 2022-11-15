@@ -3,7 +3,7 @@ package dev.quarris.bossraids.raid.definitions;
 import dev.quarris.bossraids.ModRef;
 import dev.quarris.bossraids.raid.data.BossRaid;
 import net.minecraft.entity.*;
-import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -20,7 +20,6 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class EntityDefinition<T extends Entity> {
@@ -59,7 +58,7 @@ public class EntityDefinition<T extends Entity> {
         }
     }
 
-    public T create(ServerWorld level, Vector3d pos) {
+    public T create(ServerWorld level, long raidId, Vector3d pos) {
         if (this.entity == EntityType.ENDER_DRAGON) {
             // TODO Special case for ender dragon, start a dragon fight (if in valid dim).
             ModRef.LOGGER.error("Ender Dragon is not a valid boss entity.");
@@ -74,13 +73,25 @@ public class EntityDefinition<T extends Entity> {
             return null;
         }
 
+        this.configureEntity(raidId, level, pos, entity);
+        this.customiseEntity(raidId, level, pos, entity);
+        return entity;
+    }
+
+    public void configureEntity(long raidId, ServerWorld level, Vector3d pos, T entity) {
         if (entity instanceof LivingEntity) {
             LivingEntity le = (LivingEntity) entity;
             if (this.attributes != null) {
                 for (AttributeDefinition attrDef : this.attributes) {
                     ModifiableAttributeInstance inst = le.getAttribute(attrDef.attribute);
                     if (inst != null) {
-                        inst.setBaseValue(attrDef.level);
+                        AttributeDefinition.Operation operation = attrDef.operation;
+                        if (operation == null) operation = AttributeDefinition.Operation.BASE;
+                        if (operation == AttributeDefinition.Operation.BASE) {
+                            inst.setBaseValue(attrDef.level);
+                        } else {
+                            inst.addPermanentModifier(new AttributeModifier("Boss Raid Attribute", attrDef.level, attrDef.operation.getOp()));
+                        }
                     } else {
                         ModRef.LOGGER.warn("Entity '{}' does not have attribute '{}'", this.entity.getRegistryName(), attrDef.attribute.getRegistryName());
                     }
@@ -103,10 +114,10 @@ public class EntityDefinition<T extends Entity> {
             }
 
             level.getScoreboard().addPlayerToTeam(entity.getStringUUID(), BossRaid.RAID_TEAM);
-        }
 
-        if (entity instanceof MobEntity) {
-            ((MobEntity) entity).setPersistenceRequired();
+            if (entity instanceof MobEntity) {
+                ((MobEntity) entity).setPersistenceRequired();
+            }
         }
 
         if (this.nbt != null) {
@@ -115,12 +126,9 @@ public class EntityDefinition<T extends Entity> {
             saved.merge(this.nbt);
             entity.load(saved);
         }
-
-        this.editEntity(level, pos, entity);
-        return entity;
     }
 
-    protected void editEntity(ServerWorld level, Vector3d pos, T entity) {
+    public void customiseEntity(long raidId, ServerWorld level, Vector3d pos, T entity) {
     }
 
     public CompoundNBT serialize() {

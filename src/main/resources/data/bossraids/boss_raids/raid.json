@@ -1,4 +1,5 @@
 {
+  "disableFlight": true,
   "radius": 32,
   "loot": "minecraft:chests/buried_treasure",
   "waves": [
@@ -15,7 +16,29 @@
       "bossbar": "Teamers",
       "bosses": [
         {
-          "id": "zombert",
+          "id": "slimey_boi",
+          "entity": "minecraft:slime",
+          "nbt": "{Size:3}",
+          "name": "Green Slimey",
+          "damageImmunities": [
+            "wither",
+            "inFire",
+            "onFire",
+            "lava",
+            "inWall"
+          ],
+          "effects": [
+            {
+              "effect": "minecraft:glowing",
+              "amplifier": 1
+            }
+          ],
+          "attributes": [
+
+          ]
+        },
+        {
+          "id": "skello",
           "entity": "minecraft:skeleton",
           "damageImmunities": [
             "onFire"

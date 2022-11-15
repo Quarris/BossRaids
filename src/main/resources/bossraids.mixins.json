@@ -1,13 +1,14 @@
 {
-    "required": true,
-    "minVersion": "0.8",
-    "compatibilityLevel": "JAVA_8",
-    "package": "dev.quarris.bossraids.mixins",
-    "mixins": [
-        "EntityMixin"
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    },
-    "refmap": "bossraids.refmap.json"
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "package": "dev.quarris.bossraids.mixins",
+  "mixins": [
+    "EntityMixin",
+    "SlimeEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "bossraids.refmap.json"
 }

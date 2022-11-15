@@ -1,3 +1,4 @@
 {
-    "block.bossraids.keystone": "Boss Keystone"
+    "block.bossraids.keystone": "Boss Keystone",
+    "bossraid.flying_disabled": "Flying is not allowed during this Boss Raid"
 }

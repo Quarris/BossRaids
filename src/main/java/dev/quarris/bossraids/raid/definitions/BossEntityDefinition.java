@@ -1,7 +1,6 @@
 package dev.quarris.bossraids.raid.definitions;
 
 import dev.quarris.bossraids.util.offsets.IOffset;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
@@ -21,12 +20,20 @@ public class BossEntityDefinition extends EntityDefinition<LivingEntity> {
     public EntityDefinition<? extends LivingEntity> rider;
     private IOffset offset;
 
+    public BossEntityDefinition(String id, Set<MinionEntityDefinition> minions, EntityDefinition<? extends LivingEntity> mount, EntityDefinition<? extends LivingEntity> rider, IOffset offset) {
+        this.id = id;
+        this.minions = minions;
+        this.mount = mount;
+        this.rider = rider;
+        this.offset = offset;
+    }
+
     public BossEntityDefinition(CompoundNBT tag) {
         super(tag);
     }
 
     @Override
-    protected void editEntity(ServerWorld level, Vector3d pos, LivingEntity boss) {
+    public void customiseEntity(long raidId, ServerWorld level, Vector3d pos, LivingEntity boss) {
         if (this.offset != null) {
             Vector3d offPos = this.offset.getOffset(pos);
             if (World.isOutsideBuildHeight(MathHelper.floor(offPos.y))) {
@@ -35,6 +42,11 @@ public class BossEntityDefinition extends EntityDefinition<LivingEntity> {
             }
             boss.setPos(offPos.x, offPos.y, offPos.z);
         }
+
+        CompoundNBT bossData = new CompoundNBT();
+        bossData.putString("BossId", this.id);
+        bossData.putLong("RaidId", raidId);
+        boss.getPersistentData().put("BossRaidData", bossData);
     }
 
     public String getId() {
