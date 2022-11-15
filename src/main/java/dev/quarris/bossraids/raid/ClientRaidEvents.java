@@ -19,6 +19,6 @@ public class ClientRaidEvents {
 
     @SubscribeEvent()
     public static void removeBossBars(RenderGameOverlayEvent.BossInfo event) {
-        System.out.println(event.getBossInfo().getId());
+
     }
 }
