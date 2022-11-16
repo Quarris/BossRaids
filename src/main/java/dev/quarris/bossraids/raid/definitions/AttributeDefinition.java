@@ -31,7 +31,7 @@ public class AttributeDefinition {
         CompoundNBT tag = new CompoundNBT();
         tag.putString("Attribute", this.attribute.getRegistryName().toString());
         tag.putDouble("Level", this.level);
-        tag.putString("Operation", this.operation.id);
+        tag.putString("Operation", this.operation.getId());
         return tag;
     }
 
@@ -52,6 +52,10 @@ public class AttributeDefinition {
         Operation(String id, Supplier<AttributeModifier.Operation> attributeOp) {
             this.id = id;
             this.attributeOp = attributeOp;
+        }
+
+        public String getId() {
+            return this.id;
         }
 
         public AttributeModifier.Operation getOp() {

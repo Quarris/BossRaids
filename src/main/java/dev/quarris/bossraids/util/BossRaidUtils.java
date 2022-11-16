@@ -3,6 +3,7 @@ package dev.quarris.bossraids.util;
 import com.google.gson.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.quarris.bossraids.ModRef;
+import dev.quarris.bossraids.raid.definitions.AttributeDefinition;
 import dev.quarris.bossraids.util.offsets.IOffset;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.attributes.Attribute;
@@ -67,6 +68,7 @@ public class BossRaidUtils {
                 .registerTypeAdapter(Attribute.class, resourceRegistryAdapter(ForgeRegistries.ATTRIBUTES))
                 .registerTypeAdapter(Ingredient.class, (JsonDeserializer) (json, typeOfT, context) -> Ingredient.fromJson(json))
                 .registerTypeAdapter(IOffset.class, (JsonDeserializer) (json, typeOfT, context) -> IOffset.fromJson(json.getAsJsonObject()))
+                .registerTypeAdapter(AttributeDefinition.Operation.class, (JsonDeserializer) (json, typeOfT, context) -> AttributeDefinition.Operation.fromId(json.getAsString()))
                 .create();
         }
 

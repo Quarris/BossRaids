@@ -269,14 +269,14 @@ public class BossRaid {
 
             LivingEntity mount = null;
             if (bossDef.mount != null) {
-                mount = bossDef.mount.create(level, this.raidId, pos);
+                mount = bossDef.mount.create(level, this.raidId, boss.position());
                 this.level.addFreshEntity(mount);
                 boss.startRiding(mount, true);
                 this.totalHealth += mount.getMaxHealth();
             }
             LivingEntity rider = null;
             if (bossDef.rider != null) {
-                rider = bossDef.rider.create(level, this.raidId, pos);
+                rider = bossDef.rider.create(level, this.raidId, boss.position());
                 this.level.addFreshEntity(rider);
                 rider.startRiding(boss, true);
                 this.totalHealth += rider.getMaxHealth();

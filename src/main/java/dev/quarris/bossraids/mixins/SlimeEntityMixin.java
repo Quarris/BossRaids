@@ -52,10 +52,11 @@ public abstract class SlimeEntityMixin extends MobEntity {
         }
 
         boss.addSubBoss(splitter.getUUID());
-
+        Vector3d pos = splitter.position();
         boss.definition.configureEntity(raidId, level, Vector3d.atCenterOf(boss.spawnPos), splitter);
         boss.definition.customiseEntity(raidId, level, Vector3d.atCenterOf(boss.spawnPos), splitter);
 
+        splitter.setPosAndOldPos(pos.x, pos.y, pos.z);
         splitter.getEntityData().set(SlimeEntity.ID_SIZE, newSize);
         splitter.reapplyPosition();
         splitter.refreshDimensions();

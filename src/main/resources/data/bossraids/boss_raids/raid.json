@@ -27,6 +27,13 @@
             "lava",
             "inWall"
           ],
+          "offset": {
+            "type": "minmaxCircle",
+            "minHeight": 1,
+            "maxHeight": 3,
+            "minRadius": 4,
+            "maxRadius": 7
+          },
           "effects": [
             {
               "effect": "minecraft:glowing",
@@ -38,24 +45,24 @@
           ]
         },
         {
-          "id": "skello",
-          "entity": "minecraft:skeleton",
-          "damageImmunities": [
-            "onFire"
-          ],
-          "minions": [
-            {
-              "entity": "minecraft:bat",
-              "name": "Chilli"
-            }
-          ]
-        },
-        {
           "id": "zombert",
           "entity": "minecraft:zombie",
           "damageImmunities": [
             "onFire"
           ],
+          "offset": {
+            "type": "minmaxCircle",
+            "minHeight": 0,
+            "maxHeight": 2,
+            "minRadius": 7,
+            "maxRadius": 9
+          },
+          "mount": {
+            "entity": "minecraft:skeleton",
+            "damageImmunities": [
+              "onFire"
+            ]
+          },
           "minions": [
             {
               "entity": "artifacts:mimic",
