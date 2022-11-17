@@ -3,8 +3,10 @@ package dev.quarris.bossraids.mixins;
 import dev.quarris.bossraids.raid.BossRaidManager;
 import dev.quarris.bossraids.raid.data.BossRaid;
 import dev.quarris.bossraids.raid.data.RaidBoss;
+import dev.quarris.bossraids.raid.definitions.EntityDefinition;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.monster.SlimeEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.vector.Vector3d;
@@ -26,7 +28,7 @@ public abstract class SlimeEntityMixin extends MobEntity {
     }
 
     @Inject(method = "remove", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;addFreshEntity(Lnet/minecraft/entity/Entity;)Z"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void addSplittersToRaid(boolean keepData, CallbackInfo ci, int i, ITextComponent itextcomponent, boolean flag, float f, int newSize, int k, int l, float f1, float f2, SlimeEntity splitter) {
+    private void addSplittersToRaid(boolean keepData, CallbackInfo ci, int i, ITextComponent itextcomponent, boolean flag, float f, int newSize, int splits, int l, float f1, float f2, SlimeEntity splitter) {
         if (!(this.level instanceof ServerWorld)) {
             return;
         }
@@ -53,8 +55,22 @@ public abstract class SlimeEntityMixin extends MobEntity {
 
         boss.addSubBoss(splitter.getUUID());
         Vector3d pos = splitter.position();
-        boss.definition.configureEntity(raidId, level, Vector3d.atCenterOf(boss.spawnPos), splitter);
-        boss.definition.customiseEntity(raidId, level, Vector3d.atCenterOf(boss.spawnPos), splitter);
+
+        EntityDefinition definition = boss.definition;
+        String type = "";
+        if (bossData.contains("BossType")) {
+            type = bossData.getString("BossType");
+            if ("Mount".equals(type)) {
+                definition = boss.definition.mount;
+            } else if ("Rider".equals(type)) {
+                definition = boss.definition.rider;
+            }
+        }
+
+        double base = this.getAttributeBaseValue(Attributes.MAX_HEALTH);
+        definition.configureEntity(raidId, level, Vector3d.atCenterOf(boss.spawnPos), splitter);
+        boss.definition.applyBossData(raidId, level, splitter, type);
+        splitter.getAttribute(Attributes.MAX_HEALTH).setBaseValue(base / (splits + 1));
 
         splitter.setPosAndOldPos(pos.x, pos.y, pos.z);
         splitter.getEntityData().set(SlimeEntity.ID_SIZE, newSize);

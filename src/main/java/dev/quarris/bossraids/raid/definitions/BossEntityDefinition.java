@@ -3,6 +3,7 @@ package dev.quarris.bossraids.raid.definitions;
 import dev.quarris.bossraids.util.offsets.IOffset;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.StringUtils;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
@@ -43,10 +44,22 @@ public class BossEntityDefinition extends EntityDefinition<LivingEntity> {
             boss.setPos(offPos.x, offPos.y, offPos.z);
         }
 
+        this.applyBossData(raidId, level, boss);
+    }
+
+    public CompoundNBT applyBossData(long raidId, ServerWorld level, LivingEntity boss, String bossType) {
         CompoundNBT bossData = new CompoundNBT();
         bossData.putString("BossId", this.id);
         bossData.putLong("RaidId", raidId);
+        if (!StringUtils.isNullOrEmpty(bossType)) {
+            bossData.putString("BossType", bossType);
+        }
         boss.getPersistentData().put("BossRaidData", bossData);
+        return bossData;
+    }
+
+    public CompoundNBT applyBossData(long raidId, ServerWorld level, LivingEntity boss) {
+        return this.applyBossData(raidId, level, boss, "");
     }
 
     public String getId() {

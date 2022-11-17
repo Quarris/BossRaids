@@ -34,6 +34,7 @@ public class BossRaidDataManager extends JsonReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> entries, IResourceManager manager, IProfiler profiler) {
+        Map<ResourceLocation, BossRaidDefinition> map = Maps.newHashMap();
         entries.forEach((name, baseJson) -> {
             if (!baseJson.isJsonObject()) {
                 ModRef.LOGGER.error("BossWave definition has to be an object: {}", name);
@@ -45,11 +46,13 @@ public class BossRaidDataManager extends JsonReloadListener {
                     ModRef.LOGGER.error("Boss Wave Definition '{}' cannot have an empty list of waves.", name);
                     return;
                 }
-                this.bossRaidData.put(name, bossWave);
+                map.put(name, bossWave);
             } catch (JsonParseException e) {
                 ModRef.LOGGER.error("Could not parse BossWave " + name, e);
             }
         });
+        this.bossRaidData.clear();
+        this.bossRaidData.putAll(map);
     }
 
     public ResourceLocation getId(BossRaidDefinition definition) {

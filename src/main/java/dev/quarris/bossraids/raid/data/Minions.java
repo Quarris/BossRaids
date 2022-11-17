@@ -13,7 +13,7 @@ public class Minions {
 
     private final MinionEntityDefinition definition;
     private final Set<UUID> minions = new HashSet<>();
-    private int cooldown = 30;
+    private int cooldown = 80;
 
     public Minions(MinionEntityDefinition definition) {
         this.definition = definition;
@@ -46,7 +46,7 @@ public class Minions {
     }
 
     public Entity createSpawn(ServerWorld level, long raidId, Vector3d pos) {
-        Entity minion = this.definition.create(level, raidId, pos);
+        Entity minion = this.definition.create(raidId, level, pos);
         this.minions.add(minion.getUUID());
         return minion;
     }

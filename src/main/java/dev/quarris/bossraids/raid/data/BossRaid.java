@@ -259,7 +259,7 @@ public class BossRaid {
     public void startWave(ServerWorld level, WaveDefinition wave) {
         wave.bosses.forEach(bossDef -> {
             Vector3d pos = Vector3d.atCenterOf(this.center);
-            LivingEntity boss = bossDef.create(level, this.raidId, pos);
+            LivingEntity boss = bossDef.create(this.raidId, level, pos);
             if (boss == null) {
                 ModRef.LOGGER.error("Unknown entity for raid '{}'", bossDef.getId());
                 return;
@@ -269,14 +269,16 @@ public class BossRaid {
 
             LivingEntity mount = null;
             if (bossDef.mount != null) {
-                mount = bossDef.mount.create(level, this.raidId, boss.position());
+                mount = bossDef.mount.create(this.raidId, level, boss.position());
+                bossDef.applyBossData(this.raidId, level, mount, "Mount");
                 this.level.addFreshEntity(mount);
                 boss.startRiding(mount, true);
                 this.totalHealth += mount.getMaxHealth();
             }
             LivingEntity rider = null;
             if (bossDef.rider != null) {
-                rider = bossDef.rider.create(level, this.raidId, boss.position());
+                rider = bossDef.rider.create(this.raidId, level, boss.position());
+                bossDef.applyBossData(this.raidId, level, rider, "Rider");
                 this.level.addFreshEntity(rider);
                 rider.startRiding(boss, true);
                 this.totalHealth += rider.getMaxHealth();

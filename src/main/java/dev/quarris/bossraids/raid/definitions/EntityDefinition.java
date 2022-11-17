@@ -52,13 +52,14 @@ public class EntityDefinition<T extends Entity> {
             this.nbt = tag.getCompound("Nbt");
         }
         if (tag.contains("Effects", Constants.NBT.TAG_LIST)) {
+            this.effects = new HashSet<>();
             for (INBT nbt : tag.getList("Effects", Constants.NBT.TAG_COMPOUND)) {
                 this.effects.add(new EffectDefinition((CompoundNBT) nbt));
             }
         }
     }
 
-    public T create(ServerWorld level, long raidId, Vector3d pos) {
+    public T create(long raidId, ServerWorld level, Vector3d pos) {
         if (this.entity == EntityType.ENDER_DRAGON) {
             // TODO Special case for ender dragon, start a dragon fight (if in valid dim).
             ModRef.LOGGER.error("Ender Dragon is not a valid boss entity.");

@@ -7,6 +7,153 @@
       "requirements": [
         {
           "ingredient": {
+            "item": "minecraft:dirt"
+          },
+          "count": 1
+        }
+      ],
+      "bossbar": "Slimeys",
+      "bosses": [
+        {
+          "id": "slimey",
+          "entity": "minecraft:slime",
+          "nbt": "{ForgeData:{ChampionsData:{tier:1}},Size:3}",
+          "name": "Green Slimey",
+          "damageImmunities": [
+            "wither",
+            "inFire",
+            "onFire",
+            "lava",
+            "inWall"
+          ],
+          "effects": [
+            {
+              "effect": "minecraft:glowing",
+              "amplifier": 1
+            }
+          ],
+          "attributes": [
+            {
+              "attribute": "minecraft:generic.knockback_resistance",
+              "level": 100
+            },
+            {
+              "attribute": "minecraft:generic.max_health",
+              "level": 100
+            }
+          ]
+        },
+        {
+          "id": "spidey",
+          "entity": "minecraft:spider",
+          "name": "Pirana",
+          "nbt": "{ForgeData:{ChampionsData:{tier:1}}}",
+          "damageImmunities": [
+            "wither",
+            "inFire",
+            "onFire",
+            "lava",
+            "inWall"
+          ],
+          "effects": [
+            {
+              "effect": "minecraft:glowing",
+              "amplifier": 1
+            }
+          ],
+          "attributes": [
+            {
+              "attribute": "minecraft:generic.max_health",
+              "level": 35
+            },
+            {
+              "attribute": "minecraft:generic.knockback_resistance",
+              "level": 100
+            }
+          ],
+          "offset": {
+            "type": "minmaxCircle",
+            "minHeight": -2000,
+            "minRadius": 8,
+            "maxRadius": 30
+          },
+          "mount": {
+            "entity": "minecraft:slime",
+            "nbt": "{ForgeData:{ChampionsData:{tier:1}},Size:3}",
+            "name": "Green Slimey",
+            "damageImmunities": [
+              "wither",
+              "inFire",
+              "onFire",
+              "lava",
+              "inWall"
+            ],
+            "effects": [
+              {
+                "effect": "minecraft:glowing",
+                "amplifier": 1
+              }
+            ],
+            "attributes": [
+              {
+                "attribute": "minecraft:generic.knockback_resistance",
+                "level": 100
+              },
+              {
+                "attribute": "minecraft:generic.max_health",
+                "level": 100
+              }
+            ]
+          },
+          "minions": [
+            {
+              "entity": "minecraft:bat",
+              "name": "Chompette",
+              "damageImmunities": [
+                "wither",
+                "inFire",
+                "onFire",
+                "lava",
+                "inWall"
+              ],
+              "attributes": [
+                {
+                  "attribute": "minecraft:generic.max_health",
+                  "level": 150
+                },
+                {
+                  "attribute": "minecraft:generic.armor",
+                  "level": 10
+                },
+                {
+                  "attribute": "minecraft:generic.knockback_resistance",
+                  "level": 100
+                }
+              ],
+              "count": {
+                "min": 2,
+                "max": 6
+              },
+              "cooldown": {
+                "min": 600,
+                "max": 800
+              },
+              "offset": {
+                "type": "minmaxCircle",
+                "minHeight": 3,
+                "maxHeight": 5,
+                "minRadius": 8,
+                "maxRadius": 10
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "requirements": [
+        {
+          "ingredient": {
             "item": "minecraft:stick"
           },
           "count": 1
@@ -41,7 +188,6 @@
             }
           ],
           "attributes": [
-
           ]
         },
         {
@@ -61,6 +207,20 @@
             "entity": "minecraft:skeleton",
             "damageImmunities": [
               "onFire"
+            ],
+            "attributes": [
+              {
+                "attribute": "minecraft:generic.max_health",
+                "level": 200
+              },
+              {
+                "attribute": "minecraft:generic.attack_damage",
+                "level": 20
+              },
+              {
+                "attribute": "minecraft:generic.movement_speed",
+                "level": 0.6
+              }
             ]
           },
           "minions": [

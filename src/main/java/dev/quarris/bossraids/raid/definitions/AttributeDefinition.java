@@ -24,14 +24,16 @@ public class AttributeDefinition {
     public AttributeDefinition(CompoundNBT tag) {
         this.attribute = ForgeRegistries.ATTRIBUTES.getValue(new ResourceLocation(tag.getString("Attribute")));
         this.level = tag.getDouble("Level");
-        this.operation = Operation.fromId(tag.getString("Operation"));
+        this.operation = tag.contains("Operation") ? Operation.fromId(tag.getString("Operation")) : Operation.BASE;
     }
 
     public CompoundNBT serialize() {
         CompoundNBT tag = new CompoundNBT();
         tag.putString("Attribute", this.attribute.getRegistryName().toString());
         tag.putDouble("Level", this.level);
-        tag.putString("Operation", this.operation.getId());
+        if (this.operation != null) {
+            tag.putString("Operation", this.operation.getId());
+        }
         return tag;
     }
 
