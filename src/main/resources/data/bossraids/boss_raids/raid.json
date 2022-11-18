@@ -26,6 +26,10 @@
             "lava",
             "inWall"
           ],
+          "effectImmunities": [
+            "minecraft:poison",
+            "minecraft:slowness"
+          ],
           "effects": [
             {
               "effect": "minecraft:glowing",

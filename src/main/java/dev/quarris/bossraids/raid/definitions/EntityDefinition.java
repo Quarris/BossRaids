@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.StringNBT;
+import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
@@ -25,6 +26,7 @@ import java.util.Set;
 public class EntityDefinition<T extends Entity> {
 
     public static final String DAMAGE_IMMUNITIES_TAG = ModRef.res("damage_immunities").toString();
+    public static final String EFFECT_IMMUNITIES_TAG = ModRef.res("effect_immunities").toString();
 
     protected EntityType<T> entity;
     protected String name;
@@ -32,6 +34,7 @@ public class EntityDefinition<T extends Entity> {
     protected Set<AttributeDefinition> attributes;
     protected CompoundNBT nbt;
     protected Set<String> damageImmunities;
+    protected Set<Effect> effectImmunities;
 
     public EntityDefinition() {
     }
@@ -112,6 +115,14 @@ public class EntityDefinition<T extends Entity> {
                     damageImmnunities.add(StringNBT.valueOf(damage));
                 }
                 le.getPersistentData().put(DAMAGE_IMMUNITIES_TAG, damageImmnunities);
+            }
+
+            if (this.effectImmunities != null && !this.effectImmunities.isEmpty()) {
+                ListNBT effectImmnunities = new ListNBT();
+                for (Effect effect : this.effectImmunities) {
+                    effectImmnunities.add(StringNBT.valueOf(effect.getRegistryName().toString()));
+                }
+                le.getPersistentData().put(EFFECT_IMMUNITIES_TAG, effectImmnunities);
             }
 
             level.getScoreboard().addPlayerToTeam(entity.getStringUUID(), BossRaid.RAID_TEAM);

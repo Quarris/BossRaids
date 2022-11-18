@@ -9,13 +9,16 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.monster.SlimeEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -59,6 +62,22 @@ public class RaidEvents {
         if (damageImmunities.contains(event.getSource().getMsgId())) {
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    public static void cancelEffects(PotionEvent.PotionApplicableEvent event) {
+        CompoundNBT tag = event.getEntityLiving().getPersistentData();
+        if (!tag.contains(EntityDefinition.EFFECT_IMMUNITIES_TAG)) {
+            return;
+        }
+
+        ListNBT effectsNbt = tag.getList(EntityDefinition.EFFECT_IMMUNITIES_TAG, Constants.NBT.TAG_STRING);
+        for (INBT nbt : effectsNbt) {
+            if (nbt.getAsString().equals(event.getPotionEffect().getEffect().getRegistryName().toString())) {
+                event.setResult(Event.Result.DENY);
+            }
+        }
+
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
